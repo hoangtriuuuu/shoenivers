@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Đăng nhập / Đăng ký</title>
+  <link rel="stylesheet" href="login.css" />
+</head>
+
+<body>
+  <main class="auth-main">
+    <video src="public/assets/8519683-uhd_4096_1680_25fps.mp4" autoplay muted loop></video>
+    <section class="auth-card">
+      <h2>Đăng nhập</h2>
+      <form id="loginForm">
+        <input id="loginEmail" type="email" placeholder="Email" required />
+        <input id="loginPassword" type="password" placeholder="Mật khẩu" required />
+        <button type="submit">Đăng nhập</button>
+      </form>
+      <p class="links"><a href="#" id="openRegister">Chưa có tài khoản?</a> | <a href="#" id="openForgot">Quên mật
+          khẩu?</a></p>
+    </section>
+
+    <div id="registerPopup" class="popup" aria-hidden="true">
+      <div class="popup-inner">
+        <button class="close-popup" id="closeRegister">&times;</button>
+        <h3>Đăng ký</h3>
+        <form id="registerForm">
+          <input id="registerName" type="text" placeholder="Tên hiển thị" required />
+          <input id="registerUsername" type="email" placeholder="Email" required />
+          <input id="registerPassword" type="password" placeholder="Mật khẩu" required />
+          <button type="submit">Tạo tài khoản</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="forgotPopup" class="popup" aria-hidden="true">
+      <div class="popup-inner">
+        <button class="close-popup" id="closeForgot">&times;</button>
+        <h3>Quên mật khẩu</h3>
+        <p>Liên hệ admin để lấy lại tài khoản 😅</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // keys
+    const USERS_KEY = 'users_list';
+    const CURRENT_KEY = 'current_user';
+
+    function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
+    function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+    function setCurrent(u) { localStorage.setItem(CURRENT_KEY, JSON.stringify(u)); }
+
+    // validation
+    const isEmail = e => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e.trim());
+    const validPassword = pw => pw.length >= 8 && /[A-Za-z]/.test(pw) && /\\d/.test(pw) && /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+
+    // elements
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const registerPopup = document.getElementById('registerPopup');
+    const forgotPopup = document.getElementById('forgotPopup');
+    document.getElementById('openRegister').addEventListener('click', e => { e.preventDefault(); registerPopup.style.display = 'flex'; });
+    document.getElementById('openForgot').addEventListener('click', e => { e.preventDefault(); forgotPopup.style.display = 'flex'; });
+    document.getElementById('closeRegister').addEventListener('click', () => registerPopup.style.display = 'none');
+    document.getElementById('closeForgot').addEventListener('click', () => forgotPopup.style.display = 'none');
+
+    // Register
+    registerForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const displayName = document.getElementById('registerName').value.trim();
+      const username = document.getElementById('registerUsername').value.trim();
+      const password = document.getElementById('registerPassword').value;
+
+      if (!displayName || !username || !password) { alert('Vui lòng nhập đầy đủ'); return; }
+      if (!isEmail(username)) { alert('Email không hợp lệ'); return; }
+      if (!validPassword(password)) { alert('Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt'); return; }
+
+      const users = getUsers();
+      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) { alert('Email đã tồn tại'); return; }
+
+      users.push({ displayName, username, password, avatar: 'public/assets/default_avatar.jpg' });
+      saveUsers(users);
+      alert('Đăng ký thành công! Vui lòng đăng nhập.');
+      registerForm.reset();
+      registerPopup.style.display = 'none';
+    });
+
+    // Login
+    loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const username = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const users = getUsers();
+      const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (!user) { alert('Không tìm thấy tài khoản'); return; }
+      if (user.password !== password) { alert('Sai mật khẩu'); return; }
+      setCurrent(user);
+      alert('Đăng nhập thành công!');
+      window.location.href = 'index.html';
+    });
+
+    // click outside to close popup
+    window.addEventListener('click', e => {
+      if (e.target === registerPopup) registerPopup.style.display = 'none';
+      if (e.target === forgotPopup) forgotPopup.style.display = 'none';
+    });
+  </script>
+</body>
+
+</html>
