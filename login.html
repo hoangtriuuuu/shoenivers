@@ -54,8 +54,12 @@
     function setCurrent(u) { localStorage.setItem(CURRENT_KEY, JSON.stringify(u)); }
 
     // validation
-    const isEmail = e => /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e.trim());
-    const validPassword = pw => pw.length >= 8 && /[A-Za-z]/.test(pw) && /\\d/.test(pw) && /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+    const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+    const validPassword = pw =>
+      pw.length >= 8 &&
+      /[A-Za-z]/.test(pw) &&   // Có ít nhất 1 chữ
+      /\d/.test(pw) &&         // Có ít nhất 1 số
+      /[!@#$%^&*(),.?":{}|<>]/.test(pw); // Có ít nhất 1 ký tự đặc biệt
 
     // elements
     const loginForm = document.getElementById('loginForm');
