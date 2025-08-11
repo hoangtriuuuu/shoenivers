@@ -6,6 +6,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SHOENIVERS</title>
   <link rel="stylesheet" href="index.css" />
+  <!-- Icon chuẩn -->
+  <link rel="icon" type="image/png" href="public/assets/logo/android-chrome-512x512.png">
+
+  <!-- Nếu muốn hỗ trợ iOS/Android -->
+  <link rel="apple-touch-icon" href="public/assets/logo/apple-touch-icon.png">
+  <meta name="theme-color" content="#ffffff">
+
 </head>
 
 <body>
@@ -50,7 +57,6 @@
     <!-- Modal chi tiết sản phẩm -->
     <div id="productModal" class="modal">
       <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
         <img id="modalImage" src="" alt="">
         <div class="info">
           <h2 id="modalName"></h2>
@@ -60,9 +66,9 @@
           <p id="modalDesc"></p>
         </div>
         <div class="modal-button">
-          <button id="btnAddCart">Thêm vào giỏ hàng</button>
+          <button id="btnAddCart" style="background-color: rgb(34, 34, 255)">Thêm vào giỏ hàng</button>
           <button id="btnBuy" style="background-color: rgb(38, 152, 0);">Mua</button>
-          <button onclick="closeModal()" style="background-color: rgb(152, 0, 0);">Đóng</button>
+          <button id="btnCloseModal" onclick="closeModal()" style="background-color: rgb(152, 0, 0);">Đóng</button>
         </div>
       </div>
     </div>
@@ -150,7 +156,8 @@
         isScrolling = false;
       }, 100); // Khoảng thời gian khóa cuộn
     });
-    
+
+
     // helper keys
     const USERS_KEY = 'users_list';
     const CURRENT_USER_KEY = 'current_user';
@@ -161,12 +168,48 @@
       if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
     });
 
+    // PRODUCT SCROLL
+    const slider = document.querySelector('.product-list');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    slider.addEventListener('mousedown', (e) => {
+      isDown = true;
+      slider.classList.add('active');
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeft = slider.scrollLeft;
+    });
+
+    slider.addEventListener('mouseleave', () => {
+      isDown = false;
+      slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mouseup', () => {
+      isDown = false;
+      slider.classList.remove('active');
+    });
+
+    slider.addEventListener('mousemove', (e) => {
+      if (!isDown) return; // Chỉ chạy khi đang giữ chuột
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1.5; // tốc độ kéo
+      slider.scrollLeft = scrollLeft - walk;
+    });
+
+
     // Render products data
     const products = [
-      { id: 1, name: "Adidas Ultraboost", price: 3200000, brand: "Adidas", color: "Đen xám", desc: "Thiết kế hiện đại...", img: "public/assets/adidas_ultraboost_modal.jpg" },
-      { id: 2, name: "Nike Air Zoom", price: 2500000, brand: "Nike", color: "Trắng đen", desc: "Giày chạy bộ nhẹ...", img: "public/assets/nike_air_zoom_modal.jpg" },
-      { id: 3, name: "Converse Classic", price: 1200000, brand: "Converse", color: "Trắng cổ điển", desc: "Phong cách basic...", img: "public/assets/converse_classic_modal.jpg" },
-      { id: 4, name: "Vans Old Skool", price: 1500000, brand: "Vans", color: "Đen trắng", desc: "Chất liệu canvas...", img: "public/assets/vans_oldskool_modal.jpg" },
+      { id: 1, name: "Adidas Ultraboost", price: 3200000, brand: "Adidas", color: "Đen xám", desc: "Thiết kế hiện đại...", img: "public/assets/adidas_ultraboost.jpg", modal_img: "public/assets/adidas_ultraboost_modal.jpg" },
+      { id: 2, name: "Nike Air Zoom", price: 2500000, brand: "Nike", color: "Trắng đen", desc: "Giày chạy bộ nhẹ...", img: "public/assets/nike_air_zoom.jpg", modal_img: "public/assets/nike_air_zoom_modal.jpg" },
+      { id: 3, name: "Converse Classic", price: 1200000, brand: "Converse", color: "Trắng cổ điển", desc: "Phong cách basic...", img: "public/assets/converse_classic.jpg", modal_img: "public/assets/converse_classic_modal.jpg" },
+      { id: 4, name: "Vans Old Skool", price: 1500000, brand: "Vans", color: "Đen trắng", desc: "Chất liệu canvas...", img: "public/assets/vans_oldskool.jpg", modal_img: "public/assets/vans_oldskool_modal.jpg" },
+      { id: 5, name: "Puma RS-X", price: 2800000, brand: "Puma", color: "Xanh dương", desc: "Thiết kế thể thao...", img: "public/assets/puma_rsx.jpg", modal_img: "public/assets/puma_rsx_modal.jpg" },
+      { id: 6, name: "New Balance 574", price: 2000000, brand: "New Balance", color: "Xám cổ điển", desc: "Phong cách retro...", img: "public/assets/nb_574.jpg", modal_img: "public/assets/nb_574_modal.jpg" },
+      { id: 7, name: "Reebok Classic", price: 1800000, brand: "Reebok", color: "Trắng đỏ", desc: "Thiết kế đơn giản...", img: "public/assets/reebok_classic.jpg", modal_img: "public/assets/reebok_classic_modal.jpg" },
+      { id: 8, name: "Asics Gel-Kayano", price: 3000000, brand: "Asics", color: "Xanh lá", desc: "Giày chạy bộ cao cấp...", img: "public/assets/asics_gel_kayano.jpg", modal_img: "public/assets/asics_gel_kayano_modal.jpg" }
     ];
 
     const productList = document.getElementById("product-list");
@@ -185,7 +228,7 @@
     // Modal logic (single modal)
     function openModal(id) {
       const product = products.find(p => p.id === id);
-      document.getElementById("modalImage").src = product.img;
+      document.getElementById("modalImage").src = product.modal_img;
       document.getElementById("modalName").textContent = product.name;
       document.getElementById("modalPrice").textContent = product.price.toLocaleString() + "đ";
       document.getElementById("modalBrand").textContent = product.brand;
@@ -249,6 +292,7 @@
       if (exist) { exist.qty = (exist.qty || 1) + 1; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, img: product.img }); }
       saveCart(cart);
       alert('Đã thêm ' + product.name + ' vào giỏ hàng!');
+      renderCartPopup();
     }
 
     function renderCartPopup() {
