@@ -27,6 +27,7 @@
         <li><a href="#" id="cartBtn">🛒 Giỏ hàng (<span id="cartCount">0</span>)</a></li>
         <li><a href="checkout.html">Thanh toán</a></li>
         <li><a id="navbarLogin" href="login.html">Đăng nhập</a></li>
+        <li><a id="navbarLogout" href="#" style="display:none;">Đăng xuất</a></li>
       </ul>
     </nav>
   </header>
@@ -352,16 +353,79 @@
     function updateNavbar() {
       const cur = getCurrentUser();
       const navbarLogin = document.getElementById('navbarLogin');
+      const introBtn = document.querySelector('.intro-button');
+      let logoutLink = document.getElementById('navbarLogout');
+
       if (cur) {
-        navbarLogin.innerHTML = `<img src="${cur.avatar || 'public/assets/default_avatar.jpg'}" class="nav-avatar" style="width:24px;height:24px;border-radius:50%;margin-right:6px;vertical-align:middle;"> ${cur.displayName || cur.name}`;
+        // Ẩn intro button
+        if (introBtn) introBtn.style.display = 'none';
+
+        // Cập nhật nút login thành avatar + tên
+        navbarLogin.innerHTML = `
+      <img src="${cur.avatar || 'public/assets/default_avatar.jpg'}"
+           class="nav-avatar"
+           style="width:24px;height:24px;border-radius:50%;margin-right:6px;vertical-align:middle;">
+      ${cur.displayName || cur.name}
+    `;
         navbarLogin.href = '#';
         navbarLogin.onclick = (e) => { e.preventDefault(); showProfilePopup(cur); };
+
+        // Nếu chưa có nút logout thì tạo
+        if (!logoutLink) {
+          logoutLink = document.createElement('li');
+          logoutLink.innerHTML = `<a href="#" id="navbarLogout">Đăng xuất</a>`;
+          document.querySelector('.nav-links').appendChild(logoutLink);
+        }
+        if (logoutLink.style.display === 'none') {
+          logoutLink.style.display = '';
+        }
+
+        // Gán sự kiện logout
+        document.getElementById('navbarLogout').onclick = (e) => {
+          e.preventDefault();
+          logoutUser(); // Hàm xóa user khỏi localStorage/session
+          updateNavbar();
+        };
+
       } else {
+        // Hiện intro button lại
+        if (introBtn) introBtn.style.display = '';
+
+        // Cập nhật lại nút login
         navbarLogin.textContent = 'Đăng nhập';
         navbarLogin.href = 'login.html';
         navbarLogin.onclick = null;
+
+        // Xóa nút logout nếu có
+        if (logoutLink) logoutLink.remove();
       }
     }
+    // LOGOUT USER
+    function logoutUser() {
+      // Xóa thông tin user khỏi localStorage
+      localStorage.removeItem('current_user');
+
+      // Nếu muốn xóa luôn sessionStorage
+      sessionStorage.removeItem('current_user');
+
+      // (Tùy chọn) Thông báo
+      console.log('Đã đăng xuất');
+
+      // Nếu muốn chuyển về trang chủ sau khi đăng xuất
+      // window.location.href = '/';
+    }
+
+
+    //if user logined, the intro-button is hide
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = getCurrentUser();
+      const introBtn = document.querySelector(".intro-button");
+
+      if (user && introBtn) {
+        introBtn.style.display = "none";
+      }
+    });
+
 
     // init
     updateNavbar();

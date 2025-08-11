@@ -29,18 +29,24 @@ main.auth-main {
     align-items: center;
     justify-content: center;
 }
-
+.auth-container{
+    height: 100vh;
+    position: relative;
+}
 .auth-card {
-    background: #000000a8;
+    position: absolute;
+    right: 80px;
+    background: #0000008a;
     padding: 20px;
     width: 350px;
-    height: 100vh;
+    height: 80vh;
     text-align: start;
     display: flex;
     align-items: center;
     flex-direction: column;
     justify-content:space-between;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6)
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    border-radius: 0px 0px 20px 20px;
 }
 
 .auth-card h2 {

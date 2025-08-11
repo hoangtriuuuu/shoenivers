@@ -11,16 +11,19 @@
 <body>
   <main class="auth-main">
     <video src="public/assets/8519683-uhd_4096_1680_25fps.mp4" autoplay muted loop></video>
-    <section class="auth-card">
-      <h2>Đăng nhập</h2>
-      <form id="loginForm">
-        <input id="loginEmail" type="email" placeholder="Email" required />
-        <input id="loginPassword" type="password" placeholder="Mật khẩu" required />
-        <button type="submit">Đăng nhập</button>
-      </form>
-      <p class="links"><a href="#" id="openRegister">Chưa có tài khoản?</a> | <a href="#" id="openForgot">Quên mật
-          khẩu?</a></p>
-    </section>
+    <div class="auth-container">
+      <section class="auth-card">
+        <a href="index.html"><img src="/WEB/public/assets/logo/favicon_io (1)/apple-touch-icon.png" alt=""></a>
+        <h2>Đăng nhập</h2>
+        <form id="loginForm">
+          <input id="loginEmail" type="email" placeholder="Email" required />
+          <input id="loginPassword" type="password" placeholder="Mật khẩu" required />
+          <button type="submit">Đăng nhập</button>
+        </form>
+        <p class="links"><a href="#" id="openRegister">Chưa có tài khoản?</a> | <a href="#" id="openForgot">Quên mật
+            khẩu?</a></p>
+      </section>
+    </div>
 
     <div id="registerPopup" class="popup" aria-hidden="true">
       <div class="popup-inner">

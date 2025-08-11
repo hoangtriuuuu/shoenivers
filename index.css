@@ -383,9 +383,9 @@ main .intro .intro-content {
 .popup-content {
     background: #fff;
     padding: 18px;
-    border-radius: 10px;
+    border-radius: 0px 0px 10px 10px;
     text-align: center;
-    min-width: 260px
+    min-width: 260px;
 }
 
 .popup-avatar {
