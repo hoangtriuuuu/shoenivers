@@ -24,8 +24,7 @@
       </div>
       <ul class="nav-links">
         <li><a href="index.html">Trang chủ</a></li>
-        <li><a href="#" id="cartBtn">🛒 Giỏ hàng (<span id="cartCount">0</span>)</a></li>
-        <li><a href="checkout.html">Thanh toán</a></li>
+        <li><a href="#" id="cartBtn">Giỏ hàng (<span id="cartCount">0</span>)</a></li>
         <li><a id="navbarLogin" href="login.html">Đăng nhập</a></li>
         <li><a id="navbarLogout" href="#" style="display:none;">Đăng xuất</a></li>
       </ul>
@@ -118,6 +117,7 @@
       <p>&copy; 2025 SHOENIVERS | Liên hệ: shoenivers@gmail.com</p>
     </footer>
 
+    <!-- Popup User -->
     <div id="userPopup" class="userpopup" aria-hidden="true">
       <div class="popup-content">
         <button id="closePopup" class="close-popup">&times;</button>
@@ -127,6 +127,43 @@
         <input type="file" id="avatarInput" style="display:none">
       </div>
     </div>
+
+    <!-- Popup thanh toán -->
+    <div id="checkoutPopup" class="popup">
+      <div class="popup-content">
+        <span class="close" onclick="closeCheckoutPopup()">&times;</span>
+        <h2>Thanh toán</h2>
+
+        <div class="checkout-grid">
+          <!-- Cột trái: danh sách sản phẩm -->
+          <div class="checkout-left">
+            <h3>Giỏ hàng của bạn</h3>
+            <ul id="checkoutItems"></ul>
+          </div>
+
+          <!-- Cột phải: thông tin thanh toán -->
+          <div class="checkout-right">
+            <h3>Thông tin thanh toán</h3>
+            <form id="checkoutForm">
+              <input type="text" id="fullname" placeholder="Họ và tên" required>
+              <input type="tel" id="phone" placeholder="Số điện thoại" required>
+              <input type="text" id="address" placeholder="Địa chỉ giao hàng" required>
+              <label for="paymentMethod">Phương thức thanh toán</label>
+              <select id="paymentMethod" required>
+                <option value="">-- Chọn phương thức --</option>
+                <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+                <option value="Bank">Chuyển khoản ngân hàng</option>
+                <option value="Momo">Ví điện tử Momo</option>
+              </select>
+              <textarea id="note" placeholder="Ghi chú"></textarea>
+              <button type="submit">Xác nhận thanh toán</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
   </main>
 
@@ -155,7 +192,7 @@
 
       setTimeout(() => {
         isScrolling = false;
-      }, 100); // Khoảng thời gian khóa cuộn
+      }, 300); // Khoảng thời gian khóa cuộn
     });
 
 
@@ -301,17 +338,91 @@
       const list = document.getElementById('cartItems');
       list.innerHTML = '';
       let total = 0;
-      if (cart.length === 0) { list.innerHTML = '<li>Giỏ hàng trống</li>'; document.getElementById('cartTotal').textContent = ''; return; }
+
+      if (cart.length === 0) {
+        list.innerHTML = '<li>Giỏ hàng trống</li>';
+        document.getElementById('cartTotal').textContent = '';
+        return;
+      }
+
       cart.forEach((it, idx) => {
         total += it.price * (it.qty || 1);
         list.innerHTML += `<li>
-          <img src="${it.img}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle;">
-          ${it.name} <b>${(it.price).toLocaleString()}đ</b> x ${it.qty || 1}
-          <button onclick="removeFromCart(${idx})" style="float:right">X</button>
-        </li>`;
+      <img src="${it.img}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle;">
+      ${it.name} <b>${(it.price).toLocaleString()}đ</b> x ${it.qty || 1}
+      <button onclick="removeFromCart(${idx})" style="float:right">X</button>
+    </li>`;
       });
-      document.getElementById('cartTotal').textContent = 'Tổng: ' + total.toLocaleString() + 'đ';
+
+      // Hiển thị tổng tiền + nút thanh toán
+      document.getElementById('cartTotal').innerHTML = `
+    <div style="margin-top:8px;">
+      <span>Tổng: ${total.toLocaleString()}đ</span>
+      <button onclick="checkout()" style="margin-left:10px;padding:4px 8px;background:#4CAF50;color:#fff;border:none;border-radius:10px;cursor:pointer;">
+        Thanh toán
+      </button>
+    </div>
+  `;
     }
+
+    function checkout() {
+      const cart = getCart();
+      const list = document.getElementById('checkoutItems');
+      list.innerHTML = '';
+
+      if (cart.length === 0) {
+        list.innerHTML = '<li>Giỏ hàng trống</li>';
+      } else {
+        cart.forEach(it => {
+          list.innerHTML += `
+        <li>
+          <img src="${it.img}" alt="">
+          <div class="item-info">
+            <div>${it.name}</div>
+            <div>Số lượng: ${it.qty || 1}</div>
+          </div>
+          <div class="item-price">${(it.price * (it.qty || 1)).toLocaleString()}đ</div>
+        </li>
+      `;
+        });
+      }
+
+      document.getElementById('checkoutPopup').style.display = 'block';
+    }
+
+    function closeCheckoutPopup() {
+      document.getElementById('checkoutPopup').style.display = 'none';
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('fullname').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const paymentMethod = document.getElementById('paymentMethod').value;
+
+      if (!name || !phone || !address || !paymentMethod) {
+        alert('Vui lòng điền đầy đủ thông tin và chọn phương thức thanh toán!');
+        return;
+      }
+
+      alert(
+        `Thanh toán thành công!\n` +
+        `Tên: ${name}\n` +
+        `SĐT: ${phone}\n` +
+        `Địa chỉ: ${address}\n` +
+        `Phương thức: ${paymentMethod}`
+      );
+
+      closeCheckoutPopup();
+      localStorage.removeItem(cartKeyForUser(getCurrentUser().username));
+      updateCartCount();
+      renderCartPopup();
+    });
+
+
+
 
     function removeFromCart(index) {
       let cart = getCart();

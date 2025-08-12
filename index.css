@@ -1,4 +1,5 @@
-*,html {
+*,
+html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -192,28 +193,33 @@ main .intro .intro-content {
     flex-direction: row;
     align-items: center;
     gap: 25px;
-    overflow-x: auto;        
-    overflow-y: hidden;      
-    padding-bottom: 10px;    
-    scroll-behavior: smooth; 
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
 }
+
 /* Thanh cuộn tùy chỉnh (Chrome, Edge, Safari) */
 .product-list::-webkit-scrollbar {
-    height: 8px; /* chiều cao thanh cuộn ngang */
+    height: 8px;
+    /* chiều cao thanh cuộn ngang */
 }
 
 .product-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1); /* màu nền track */
+    background: rgba(255, 255, 255, 0.1);
+    /* màu nền track */
     border-radius: 10px;
 }
 
 .product-list::-webkit-scrollbar-thumb {
-    background: #888; /* màu thanh cuộn */
+    background: #888;
+    /* màu thanh cuộn */
     border-radius: 10px;
 }
 
 .product-list::-webkit-scrollbar-thumb:hover {
-    background: #555; /* hover đậm hơn */
+    background: #555;
+    /* hover đậm hơn */
 }
 
 .product-item {
@@ -259,6 +265,7 @@ main .intro .intro-content {
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
     cursor: pointer;
 }
+
 /* MODAL */
 .modal {
     display: none;
@@ -284,7 +291,7 @@ main .intro .intro-content {
     position: relative;
 }
 
-.modal-content .modal-button{
+.modal-content .modal-button {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -295,11 +302,12 @@ main .intro .intro-content {
     top: 370px;
     z-index: 200;
 }
+
 .modal-button button {
     cursor: pointer;
     width: 350px;
     height: 40px;
-    text-align:center;
+    text-align: center;
     color: #fff;
     border-radius: 10px;
     font-size: 15px;
@@ -307,6 +315,7 @@ main .intro .intro-content {
     transform: translateX(0);
     transition: all 0.3s ease-in-out;
 }
+
 .modal-button button:hover {
     transform: scale(1.05);
     color: #fff;
@@ -487,6 +496,120 @@ footer {
 .news-item:hover p {
     color: #a2a2a2;
 }
+
+/* Popup nền tối */
+.popup {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  padding-top: 60px;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+}
+
+/* Nội dung popup */
+.popup-content {
+  background: #fff;
+  margin: auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 800px;
+  max-width: 95%;
+  animation: fadeIn 0.3s ease;
+}
+
+.close {
+  float: right;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.checkout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Danh sách sản phẩm */
+#checkoutItems {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#checkoutItems li {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+#checkoutItems img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+#checkoutItems .item-info {
+  flex: 1;
+}
+
+#checkoutItems .item-price {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+/* Form thông tin */
+.checkout-right input,
+.checkout-right textarea,
+.checkout-right button {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.checkout-right button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.checkout-right button:hover {
+  background: #45a049;
+}
+.checkout-right select {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 
 /* FOOTER */
 footer {
