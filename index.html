@@ -12,7 +12,7 @@
   <!-- Nếu muốn hỗ trợ iOS/Android -->
   <link rel="apple-touch-icon" href="public/assets/logo/apple-touch-icon.png">
   <meta name="theme-color" content="#ffffff">
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
@@ -24,9 +24,10 @@
       </div>
       <ul class="nav-links">
         <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
         <li><a href="#" id="cartBtn">Giỏ hàng (<span id="cartCount">0</span>)</a></li>
         <li><a id="navbarLogin" href="login.html">Đăng nhập</a></li>
-        <li><a id="navbarLogout" href="#" style="display:none;">Đăng xuất</a></li>
+        <li><a id="navbarLogout" href="login.html" style="display:none;">Đăng xuất</a></li>
       </ul>
     </nav>
   </header>
@@ -62,6 +63,17 @@
           <h2 id="modalName"></h2>
           <p><strong>Giá:</strong> <span id="modalPrice"></span></p>
           <p><strong>Hãng:</strong> <span id="modalBrand"></span></p>
+          <p>
+            <strong>Size:</strong>
+            <select id="modalSize">
+              <option value="">Chọn size</option>
+              <option value="38">38</option>
+              <option value="39">39</option>
+              <option value="40">40</option>
+              <option value="41">41</option>
+              <option value="42">42</option>
+            </select>
+          </p>
           <p><strong>Màu sắc:</strong> <span id="modalColor"></span></p>
           <p id="modalDesc"></p>
         </div>
@@ -79,7 +91,7 @@
       <ul id="cartItems"></ul>
       <p id="cartTotal"></p>
       <div class="cart-actions">
-        <button id="clearCart">Xóa tất cả</button>
+        <button onclick="clearCart()" id="clearCart">Xóa tất cả</button>
         <button onclick="closeCart()">Đóng</button>
       </div>
     </div>
@@ -130,7 +142,7 @@
 
     <!-- Popup thanh toán -->
     <div id="checkoutPopup" class="popup">
-      <div class="popup-content">
+      <div class="popup-checkout-content">
         <span class="close" onclick="closeCheckoutPopup()">&times;</span>
         <h2>Thanh toán</h2>
 
@@ -139,6 +151,9 @@
           <div class="checkout-left">
             <h3>Giỏ hàng của bạn</h3>
             <ul id="checkoutItems"></ul>
+            <div class="checkout-total" style="margin-top: 10px;">
+              <strong>Tổng cộng:</strong> <span id="checkoutTotal">0</span> đ
+            </div>
           </div>
 
           <!-- Cột phải: thông tin thanh toán -->
@@ -258,7 +273,10 @@
           <img src="${p.img}" alt="${p.name}">
           <h3>${p.name}</h3>
           <p>Giá: ${p.price.toLocaleString()}đ</p>
-          <button onclick="openModal(${p.id})">Xem chi tiết</button>
+          <div class="product-button-group">
+            <button onclick="openModal(${p.id})">Xem chi tiết</button>
+            <button class="quick-add" onclick="quickAddToCart(${p.id})"><i class="fa-solid fa-cart-plus"></i></button>
+          </div>
         </div>
       `;
     });
@@ -333,6 +351,38 @@
       renderCartPopup();
     }
 
+    //Thêm giỏ hàng nhanh
+    function quickAddToCart(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const u = getCurrentUser();
+      if (!u) {
+        alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
+        return;
+      }
+
+      let cart = JSON.parse(localStorage.getItem(cartKeyForUser(u.username))) || [];
+
+      // increase qty if exists
+      const exist = cart.find(i => i.id === id);
+      if (exist) {
+        exist.qty = (exist.qty || 1) + 1;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          qty: 1,
+          img: product.img
+        });
+      }
+
+      saveCart(cart);
+      alert("Đã thêm " + product.name + " vào giỏ hàng!");
+      renderCartPopup();
+    }
+
     function renderCartPopup() {
       const cart = getCart();
       const list = document.getElementById('cartItems');
@@ -361,34 +411,64 @@
       <button onclick="checkout()" style="margin-left:10px;padding:4px 8px;background:#4CAF50;color:#fff;border:none;border-radius:10px;cursor:pointer;">
         Thanh toán
       </button>
-    </div>
-  `;
+    </div>`;
     }
+
 
     function checkout() {
       const cart = getCart();
       const list = document.getElementById('checkoutItems');
       list.innerHTML = '';
 
+      let total = 0;
+
       if (cart.length === 0) {
         list.innerHTML = '<li>Giỏ hàng trống</li>';
+        document.getElementById('checkoutTotal').textContent = '0';
       } else {
         cart.forEach(it => {
+          const itemTotal = it.price * (it.qty || 1);
+          total += itemTotal;
+
           list.innerHTML += `
         <li>
+          <input type="checkbox" class="checkout-item-check" data-id="${it.id}" checked>
           <img src="${it.img}" alt="">
           <div class="item-info">
             <div>${it.name}</div>
             <div>Số lượng: ${it.qty || 1}</div>
           </div>
-          <div class="item-price">${(it.price * (it.qty || 1)).toLocaleString()}đ</div>
+          <div class="item-price">${itemTotal.toLocaleString()}đ</div>
         </li>
       `;
         });
+
+        document.getElementById('checkoutTotal').textContent = total.toLocaleString();
       }
+
+      // Gắn sự kiện tính lại tổng khi tick/untick
+      document.querySelectorAll('.checkout-item-check').forEach(chk => {
+        chk.addEventListener('change', updateCheckoutTotal);
+      });
 
       document.getElementById('checkoutPopup').style.display = 'block';
     }
+
+    function updateCheckoutTotal() {
+      const cart = getCart();
+      let total = 0;
+
+      document.querySelectorAll('.checkout-item-check:checked').forEach(chk => {
+        const id = parseInt(chk.getAttribute('data-id'));
+        const item = cart.find(i => i.id === id);
+        if (item) {
+          total += item.price * (item.qty || 1);
+        }
+      });
+
+      document.getElementById('checkoutTotal').textContent = total.toLocaleString();
+    }
+
 
     function closeCheckoutPopup() {
       document.getElementById('checkoutPopup').style.display = 'none';
@@ -420,7 +500,6 @@
       updateCartCount();
       renderCartPopup();
     });
-
 
 
 
@@ -465,6 +544,7 @@
       const cur = getCurrentUser();
       const navbarLogin = document.getElementById('navbarLogin');
       const introBtn = document.querySelector('.intro-button');
+      const cartBtn = document.getElementById('cartBtn');
       let logoutLink = document.getElementById('navbarLogout');
 
       if (cur) {
@@ -501,7 +581,8 @@
       } else {
         // Hiện intro button lại
         if (introBtn) introBtn.style.display = '';
-
+        // Ẩn cart button
+        if (cartBtn) cartBtn.style.display = 'none';
         // Cập nhật lại nút login
         navbarLogin.textContent = 'Đăng nhập';
         navbarLogin.href = 'login.html';
@@ -523,7 +604,7 @@
       console.log('Đã đăng xuất');
 
       // Nếu muốn chuyển về trang chủ sau khi đăng xuất
-      // window.location.href = '/';
+      window.location.href = 'login.html';
     }
 
 

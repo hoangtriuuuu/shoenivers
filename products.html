@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SHOENIVERS - Products</title>
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="product.css">
+  <link rel="icon" type="image/png" href="public/assets/logo/android-chrome-512x512.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+  <header>
+    <nav id="navbar" class="navbar">
+      <div class="logo-container">
+        <h1 class="logo">SHOENIVERS</h1>
+        <p class="tagline">BETA ACCESS</p>
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Trang chủ</a></li>
+        <li><a href="products.html">Sản phẩm</a></li>
+        <li><a href="#" id="cartBtn">Giỏ hàng (<span id="cartCount">0</span>)</a></li>
+        <li><a id="navbarLogin" href="login.html">Đăng nhập</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="products-page">
+    <div class="products-header">
+      <h2 style="margin:0">Danh sách sản phẩm</h2>
+
+      <div class="brand-filter">
+        <label for="brandFilter">Lọc theo hãng:</label>
+        <select id="sortSelect">
+          <option value="">-- Sắp xếp --</option>
+          <option value="priceAsc">Giá tăng dần</option>
+          <option value="priceDesc">Giá giảm dần</option>
+          <option value="nameAsc">Tên A → Z</option>
+          <option value="nameDesc">Tên Z → A</option>
+        </select>
+        <select id="brandFilter">
+          <option value="">Tất cả</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+  </main>
+  <!-- User Popup -->
+  <div id="userPopup" class="popup" style="display:none;">
+    <div class="popup-content">
+      <span id="closePopup" class="close">&times;</span>
+      <img id="popupAvatar" src="public/assets/default_avatar.jpg"
+        style="width:80px;height:80px;border-radius:50%;cursor:pointer;">
+      <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+      <h3 id="popupName"></h3>
+      <p id="popupEmail"></p>
+    </div>
+  </div>
+
+
+  <!-- Modal (same structure as index) -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <img id="modalImage" src="" alt="">
+      <div class="info">
+        <h2 id="modalName"></h2>
+        <p><strong>Giá:</strong> <span id="modalPrice"></span></p>
+        <p><strong>Hãng:</strong> <span id="modalBrand"></span></p>
+        <p>
+          <strong>Size:</strong>
+          <select id="modalSize">
+            <option value="">Chọn size</option>
+            <option value="38">38</option>
+            <option value="39">39</option>
+            <option value="40">40</option>
+            <option value="41">41</option>
+            <option value="42">42</option>
+          </select>
+        </p>
+        <p><strong>Màu sắc:</strong> <span id="modalColor"></span></p>
+        <p id="modalDesc"></p>
+      </div>
+      <div class="modal-button">
+        <button id="btnAddCart" style="background-color: rgb(34, 34, 255)">Thêm vào giỏ hàng</button>
+        <button id="btnBuy" style="background-color: rgb(38, 152, 0);">Mua</button>
+        <button id="btnCloseModal" onclick="closeModal()" style="background-color: rgb(152, 0, 0);">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart popup (reused) -->
+  <div id="cartPopup" class="cart-popup" aria-hidden="true">
+    <h3>Giỏ hàng</h3>
+    <ul id="cartItems"></ul>
+    <p id="cartTotal"></p>
+    <div class="cart-actions">
+      <button onclick="clearCart()" id="clearCart">Xóa tất cả</button>
+      <button onclick="closeCart()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Checkout popup (reused) -->
+  <div id="checkoutPopup" class="popup">
+    <div class="popup-checkout-content">
+      <span class="close" onclick="closeCheckoutPopup()">&times;</span>
+      <h2>Thanh toán</h2>
+
+      <div class="checkout-grid">
+        <div class="checkout-left">
+          <h3>Giỏ hàng của bạn</h3>
+          <ul id="checkoutItems"></ul>
+          <div class="checkout-total" style="margin-top: 10px; text-align: right;">
+            <strong>Tổng cộng:</strong> <span id="checkoutTotal">0</span> đ
+          </div>
+        </div>
+        <div class="checkout-right">
+          <h3>Thông tin thanh toán</h3>
+          <form id="checkoutForm">
+            <input type="text" id="fullname" placeholder="Họ và tên" required>
+            <input type="tel" id="phone" placeholder="Số điện thoại" required>
+            <input type="text" id="address" placeholder="Địa chỉ giao hàng" required>
+            <label for="paymentMethod">Phương thức thanh toán</label>
+            <select id="paymentMethod" required>
+              <option value="">-- Chọn phương thức --</option>
+              <option value="COD">Thanh toán khi nhận hàng (COD)</option>
+              <option value="Bank">Chuyển khoản ngân hàng</option>
+              <option value="Momo">Ví điện tử Momo</option>
+            </select>
+            <textarea id="note" placeholder="Ghi chú"></textarea>
+            <button type="submit">Xác nhận thanh toán</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // NAVBAR SCROLL EFFECT
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
+    });
+    
+    // dữ liệu products (sao y từ index.html)
+    const products = [
+      { id: 1, name: "Adidas Ultraboost", price: 3200000, brand: "Adidas", color: "Đen xám", desc: "Thiết kế hiện đại...", img: "public/assets/adidas_ultraboost.jpg", modal_img: "public/assets/adidas_ultraboost_modal.jpg" },
+      { id: 2, name: "Nike Air Zoom", price: 2500000, brand: "Nike", color: "Trắng đen", desc: "Giày chạy bộ nhẹ...", img: "public/assets/nike_air_zoom.jpg", modal_img: "public/assets/nike_air_zoom_modal.jpg" },
+      { id: 3, name: "Converse Classic", price: 1200000, brand: "Converse", color: "Trắng cổ điển", desc: "Phong cách basic...", img: "public/assets/converse_classic.jpg", modal_img: "public/assets/converse_classic_modal.jpg" },
+      { id: 4, name: "Vans Old Skool", price: 1500000, brand: "Vans", color: "Đen trắng", desc: "Chất liệu canvas...", img: "public/assets/vans_oldskool.jpg", modal_img: "public/assets/vans_oldskool_modal.jpg" },
+      { id: 5, name: "Puma RS-X", price: 2800000, brand: "Puma", color: "Xanh dương", desc: "Thiết kế thể thao...", img: "public/assets/puma_rsx.jpg", modal_img: "public/assets/puma_rsx_modal.jpg" },
+      { id: 6, name: "New Balance 574", price: 2000000, brand: "New Balance", color: "Xám cổ điển", desc: "Phong cách retro...", img: "public/assets/nb_574.jpg", modal_img: "public/assets/nb_574_modal.jpg" },
+      { id: 7, name: "Reebok Classic", price: 1800000, brand: "Reebok", color: "Trắng đỏ", desc: "Thiết kế đơn giản...", img: "public/assets/reebok_classic.jpg", modal_img: "public/assets/reebok_classic_modal.jpg" },
+      { id: 8, name: "Asics Gel-Kayano", price: 3000000, brand: "Asics", color: "Xanh lá", desc: "Giày chạy bộ cao cấp...", img: "public/assets/asics_gel_kayano.jpg", modal_img: "public/assets/asics_gel_kayano_modal.jpg" }
+    ];
+
+    const productGrid = document.getElementById('productGrid');
+    const brandFilter = document.getElementById('brandFilter');
+
+    function populateBrandFilter() {
+      const brands = [...new Set(products.map(p => p.brand))].sort();
+      brands.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        brandFilter.appendChild(opt);
+      });
+    }
+
+    document.getElementById('sortSelect').addEventListener('change', function () {
+      const value = this.value;
+      let list = [...products];
+
+      if (value === 'priceAsc') list.sort((a, b) => a.price - b.price);
+      if (value === 'priceDesc') list.sort((a, b) => b.price - a.price);
+      if (value === 'nameAsc') list.sort((a, b) => a.name.localeCompare(b.name));
+      if (value === 'nameDesc') list.sort((a, b) => b.name.localeCompare(a.name));
+
+      renderProducts(brandFilter.value, '', list);
+    });
+
+
+    function renderProducts(filterBrand = '') {
+      productGrid.innerHTML = '';
+      const list = products.filter(p => !filterBrand || p.brand === filterBrand);
+      list.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}">
+          <h4>${p.name}</h4>
+          <p>Giá: ${p.price.toLocaleString()}đ</p>
+          <div class="product-actions">
+            <button class="view-btn" onclick="openModal(${p.id})">Xem chi tiết</button>
+            <button class="quick-add" onclick="quickAddToCart(${p.id})"><i class="fa-solid fa-cart-plus"></i></button>
+          </div>
+        `;
+        productGrid.appendChild(card);
+      });
+    }
+
+    brandFilter.addEventListener('change', (e) => {
+      renderProducts(e.target.value);
+    });
+
+    // Modal & cart logic (reused + slightly simplified)
+    const USERS_KEY = 'users_list';
+    const CURRENT_USER_KEY = 'current_user';
+
+    function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
+    function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+    function getCurrentUser() { return JSON.parse(localStorage.getItem(CURRENT_USER_KEY) || 'null'); }
+    function setCurrentUser(u) { localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u)); updateNavbar(); updateCartCount(); }
+
+    function cartKeyForUser(username) { return `cart_${username}`; }
+    function getCart() { const u = getCurrentUser(); if (!u) return []; return JSON.parse(localStorage.getItem(cartKeyForUser(u.username)) || '[]'); }
+    function saveCart(cart) { const u = getCurrentUser(); if (!u) return; localStorage.setItem(cartKeyForUser(u.username), JSON.stringify(cart)); updateCartCount(); }
+
+    function openModal(id) {
+      const product = products.find(p => p.id === id);
+      document.getElementById("modalImage").src = product.modal_img;
+      document.getElementById("modalName").textContent = product.name;
+      document.getElementById("modalPrice").textContent = product.price.toLocaleString() + "đ";
+      document.getElementById("modalBrand").textContent = product.brand;
+      document.getElementById("modalColor").textContent = product.color;
+      document.getElementById("modalDesc").textContent = product.desc;
+
+      document.getElementById("btnAddCart").onclick = () => addCart(product.id);
+      document.getElementById("btnBuy").onclick = () => alert("Mua " + product.name);
+
+      document.getElementById("productModal").style.display = "flex";
+    }
+    function closeModal() { document.getElementById("productModal").style.display = "none"; }
+
+    function addCart(id) {
+      const user = getCurrentUser();
+      if (!user) { alert('Vui lòng đăng nhập để thêm sản phẩm.'); window.location.href = 'login.html'; return; }
+      let cart = getCart();
+      const product = products.find(p => p.id === id);
+      const exist = cart.find(i => i.id === id);
+      if (exist) { exist.qty = (exist.qty || 1) + 1; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, img: product.img }); }
+      saveCart(cart);
+      alert('Đã thêm ' + product.name + ' vào giỏ hàng!');
+      renderCartPopup();
+    }
+
+    function quickAddToCart(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+      const u = getCurrentUser();
+      if (!u) { alert("Vui lòng đăng nhập để thêm vào giỏ hàng!"); return; }
+      let cart = JSON.parse(localStorage.getItem(cartKeyForUser(u.username))) || [];
+      const exist = cart.find(i => i.id === id);
+      if (exist) { exist.qty = (exist.qty || 1) + 1; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, img: product.img }); }
+      saveCart(cart);
+      alert("Đã thêm " + product.name + " vào giỏ hàng!");
+      renderCartPopup();
+    }
+
+    function renderCartPopup() {
+      const cart = getCart();
+      const list = document.getElementById('cartItems');
+      list.innerHTML = '';
+      let total = 0;
+
+      if (cart.length === 0) {
+        list.innerHTML = '<li>Giỏ hàng trống</li>';
+        document.getElementById('cartTotal').textContent = '';
+        return;
+      }
+
+      cart.forEach((it, idx) => {
+        total += it.price * (it.qty || 1);
+        list.innerHTML += `<li>
+        <img src="${it.img}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle;">
+        ${it.name} <b>${(it.price).toLocaleString()}đ</b> x ${it.qty || 1}
+        <button onclick="removeFromCart(${idx})" style="float:right">X</button>
+      </li>`;
+      });
+
+      document.getElementById('cartTotal').innerHTML = `
+      <div style="margin-top:8px; text-align: right;">
+        <span>Tổng: ${total.toLocaleString()}đ</span>
+        <button onclick="checkout()" style="margin-left:10px;padding:4px 8px;background:#4CAF50;color:#fff;border:none;border-radius:10px;cursor:pointer;">
+          Thanh toán
+        </button>
+      </div>`;
+    }
+
+    function checkout() {
+      const cart = getCart();
+      const list = document.getElementById('checkoutItems');
+      list.innerHTML = '';
+
+      let total = 0;
+
+      if (cart.length === 0) {
+        list.innerHTML = '<li>Giỏ hàng trống</li>';
+        document.getElementById('checkoutTotal').textContent = '0';
+      } else {
+        cart.forEach(it => {
+          const itemTotal = it.price * (it.qty || 1);
+          total += itemTotal;
+
+          list.innerHTML += `
+          <li>
+            <input type="checkbox" class="checkout-item-check" data-id="${it.id}" checked>
+            <img src="${it.img}" alt="">
+            <div class="item-info">
+              <div>${it.name}</div>
+              <div>Số lượng: ${it.qty || 1}</div>
+            </div>
+            <div class="item-price">${itemTotal.toLocaleString()}đ</div>
+          </li>
+        `;
+        });
+
+        document.getElementById('checkoutTotal').textContent = total.toLocaleString();
+      }
+
+      document.querySelectorAll('.checkout-item-check').forEach(chk => {
+        chk.addEventListener('change', updateCheckoutTotal);
+      });
+
+      document.getElementById('checkoutPopup').style.display = 'block';
+    }
+
+    function updateCheckoutTotal() {
+      const cart = getCart();
+      let total = 0;
+
+      document.querySelectorAll('.checkout-item-check:checked').forEach(chk => {
+        const id = parseInt(chk.getAttribute('data-id'));
+        const item = cart.find(i => i.id === id);
+        if (item) { total += item.price * (item.qty || 1); }
+      });
+
+      document.getElementById('checkoutTotal').textContent = total.toLocaleString();
+    }
+
+    function closeCheckoutPopup() { document.getElementById('checkoutPopup').style.display = 'none'; }
+
+    function removeFromCart(index) { let cart = getCart(); if (index < 0 || index >= cart.length) return; cart.splice(index, 1); saveCart(cart); renderCartPopup(); }
+    function clearCart() { const cur = getCurrentUser(); if (!cur) return; localStorage.removeItem(cartKeyForUser(cur.username)); renderCartPopup(); updateCartCount(); }
+    function showCart() { renderCartPopup(); document.getElementById('cartPopup').style.display = 'block'; }
+    function closeCart() { document.getElementById('cartPopup').style.display = 'none'; }
+
+    function updateCartCount() { const cur = getCurrentUser(); const el = document.getElementById('cartCount'); if (!cur) { el.textContent = '0'; return; } const cart = getCart(); const count = cart.reduce((s, i) => s + (i.qty || 1), 0); el.textContent = count; }
+
+    document.getElementById('cartBtn').addEventListener('click', (e) => { e.preventDefault(); const popup = document.getElementById('cartPopup'); if (popup.style.display === 'block') { closeCart(); } else { showCart(); } });
+
+    function showProfilePopup(user) {
+      if (!user) return;
+      document.getElementById('popupAvatar').src = user.avatar || 'public/assets/default_avatar.jpg';
+      document.getElementById('popupName').textContent = user.displayName || user.name || '';
+      document.getElementById('popupEmail').textContent = user.username || user.email || '';
+      document.getElementById('userPopup').style.display = 'block';
+    }
+    document.getElementById('closePopup').addEventListener('click', () => document.getElementById('userPopup').style.display = 'none');
+    document.getElementById('popupAvatar').addEventListener('click', () => document.getElementById('avatarInput').click());
+    document.getElementById('avatarInput').addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const newAvatar = e.target.result;
+        let cur = getCurrentUser();
+        if (!cur) return alert('Bạn cần đăng nhập để đổi avatar');
+        cur.avatar = newAvatar;
+        setCurrentUser(cur);
+        // update users list
+        let users = getUsers();
+        users = users.map(u => (u.username === cur.username ? { ...u, avatar: newAvatar } : u));
+        saveUsers(users);
+        document.getElementById('popupAvatar').src = newAvatar;
+      }
+      reader.readAsDataURL(file);
+    });
+
+    function logoutUser() {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      sessionStorage.removeItem(CURRENT_USER_KEY);
+      updateNavbar(); // Cập nhật giao diện ngay
+      window.location.href = "login.html"; // Chuyển về login
+    }
+
+    function updateNavbar() {
+      const cur = getCurrentUser();
+      const navbarLogin = document.getElementById('navbarLogin');
+      const introBtn = document.querySelector('.intro-button');
+      const cartBtn = document.getElementById('cartBtn');
+      let logoutLink = document.getElementById('navbarLogout');
+
+      if (cur) {
+        if (introBtn) introBtn.style.display = 'none';
+        navbarLogin.innerHTML = `
+      <img src="${cur.avatar || 'public/assets/default_avatar.jpg'}"
+           class="nav-avatar"
+           style="width:24px;height:24px;border-radius:50%;margin-right:6px;vertical-align:middle;">
+      ${cur.displayName || cur.name}
+    `;
+        navbarLogin.href = '#';
+        navbarLogin.onclick = (e) => {
+          e.preventDefault();
+          showProfilePopup(cur);
+        };
+
+        if (!logoutLink) {
+          logoutLink = document.createElement('li');
+          logoutLink.innerHTML = `<a href="#" id="navbarLogout">Đăng xuất</a>`;
+          document.querySelector('.nav-links').appendChild(logoutLink);
+        }
+        logoutLink.style.display = '';
+        document.getElementById('navbarLogout').onclick = (e) => {
+          e.preventDefault();
+          logoutUser();
+        };
+
+        if (cartBtn) cartBtn.style.display = '';
+      } else {
+        if (introBtn) introBtn.style.display = '';
+        if (cartBtn) cartBtn.style.display = 'none';
+        navbarLogin.textContent = 'Đăng nhập';
+        navbarLogin.href = 'login.html';
+        navbarLogin.onclick = null;
+        if (logoutLink) logoutLink.remove();
+      }
+    }
+
+
+
+    // init
+    populateBrandFilter();
+    renderProducts();
+    updateNavbar();
+    updateCartCount();
+  </script>
+</body>
+
+</html>

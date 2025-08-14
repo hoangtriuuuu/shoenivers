@@ -266,6 +266,21 @@ main .intro .intro-content {
     cursor: pointer;
 }
 
+.product-button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.product-button-group button {
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
 /* MODAL */
 .modal {
     display: none;
@@ -395,6 +410,9 @@ main .intro .intro-content {
     border-radius: 0px 0px 10px 10px;
     text-align: center;
     min-width: 260px;
+    margin: auto;
+    width: 500px;
+    animation: fadeIn 0.3s ease;
 }
 
 .popup-avatar {
@@ -407,11 +425,11 @@ main .intro .intro-content {
 
 .close-popup {
     position: absolute;
-    right: 12px;
-    top: 8px;
+    right: 35%;
+    top: 0px;
     border: none;
     background: transparent;
-    font-size: 20px;
+    font-size: 30px;
     cursor: pointer;
     color: #bbbbbb;
 }
@@ -428,6 +446,7 @@ footer {
     padding: 80px 50px;
     width: 100%;
     height: 93vh;
+    max-width: 100%;
 }
 
 .news h2 {
@@ -499,102 +518,103 @@ footer {
 
 /* Popup nền tối */
 .popup {
-  display: none;
-  position: fixed;
-  z-index: 999;
-  padding-top: 60px;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.6);
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 /* Nội dung popup */
-.popup-content {
-  background: #fff;
-  margin: auto;
-  padding: 20px;
-  border-radius: 8px;
-  width: 800px;
-  max-width: 95%;
-  animation: fadeIn 0.3s ease;
+.popup-checkout-content {
+    background: #fff;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 800px;
+    max-width: 95%;
+    animation: fadeIn 0.3s ease;
 }
 
 .close {
-  float: right;
-  font-size: 24px;
-  cursor: pointer;
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 .checkout-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
 /* Danh sách sản phẩm */
 #checkoutItems {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.checkout-item-check{
+    margin-right: 20px;
 }
 
 #checkoutItems li {
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #ddd;
-  padding: 8px 0;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 0;
 }
 
 #checkoutItems img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 10px;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-right: 10px;
 }
 
 #checkoutItems .item-info {
-  flex: 1;
+    flex: 1;
 }
 
 #checkoutItems .item-price {
-  font-weight: bold;
-  white-space: nowrap;
+    font-weight: bold;
+    white-space: nowrap;
 }
 
 /* Form thông tin */
 .checkout-right input,
 .checkout-right textarea,
 .checkout-right button {
-  width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+    width: 100%;
+    margin: 6px 0;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
 .checkout-right button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
 .checkout-right button:hover {
-  background: #45a049;
+    background: #45a049;
 }
+
 .checkout-right select {
-  width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+    width: 100%;
+    margin: 6px 0;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
 }
 
 
@@ -610,13 +630,13 @@ footer {
     }
 }
 
-
 /* FOOTER */
 footer {
     background-color: #000000;
     color: white;
     text-align: center;
     padding: 15px;
+    margin-bottom: 20px;
     font-size: 14px;
 }
 
