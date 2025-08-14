@@ -1,6 +1,7 @@
 body{
     overflow: auto;
 }
+
 /* Small overrides for product page layout */
 .products-page {
     padding: 100px 50px 60px;
@@ -8,6 +9,9 @@ body{
     background: transparent;
 }
 
+.products-page h2 {
+    color: #fff;
+}
 .products-header {
     display: flex;
     align-items: center;
@@ -21,7 +25,16 @@ body{
     align-items: center;
     gap: 8px;
 }
-
+.brand-filter label{
+    color: #fff;
+}
+.brand-filter select {
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    color: #000000;
+}
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -84,6 +97,22 @@ body{
     background: #007bff;
     color: #fff
 }
+
+/* Cart */
+.cart-actions button{
+    background: #000000;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+.cart-actions button:hover {
+    background: #333;
+}
+
+
 
 /* Responsive small screens */
 @media (max-width:600px) {

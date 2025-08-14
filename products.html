@@ -144,7 +144,7 @@
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
     });
-    
+
     // dữ liệu products (sao y từ index.html)
     const products = [
       { id: 1, name: "Adidas Ultraboost", price: 3200000, brand: "Adidas", color: "Đen xám", desc: "Thiết kế hiện đại...", img: "public/assets/adidas_ultraboost.jpg", modal_img: "public/assets/adidas_ultraboost_modal.jpg" },
@@ -154,12 +154,61 @@
       { id: 5, name: "Puma RS-X", price: 2800000, brand: "Puma", color: "Xanh dương", desc: "Thiết kế thể thao...", img: "public/assets/puma_rsx.jpg", modal_img: "public/assets/puma_rsx_modal.jpg" },
       { id: 6, name: "New Balance 574", price: 2000000, brand: "New Balance", color: "Xám cổ điển", desc: "Phong cách retro...", img: "public/assets/nb_574.jpg", modal_img: "public/assets/nb_574_modal.jpg" },
       { id: 7, name: "Reebok Classic", price: 1800000, brand: "Reebok", color: "Trắng đỏ", desc: "Thiết kế đơn giản...", img: "public/assets/reebok_classic.jpg", modal_img: "public/assets/reebok_classic_modal.jpg" },
-      { id: 8, name: "Asics Gel-Kayano", price: 3000000, brand: "Asics", color: "Xanh lá", desc: "Giày chạy bộ cao cấp...", img: "public/assets/asics_gel_kayano.jpg", modal_img: "public/assets/asics_gel_kayano_modal.jpg" }
+      { id: 8, name: "Asics Gel-Kayano", price: 3000000, brand: "Asics", color: "Xanh lá", desc: "Giày chạy bộ cao cấp...", img: "public/assets/asics_gel_kayano.jpg", modal_img: "public/assets/asics_gel_kayano_modal.jpg" },
+      { id: 9, name: "Adidas NMD R1", price: 2900000, brand: "Adidas", color: "Đen trắng", desc: "Phong cách streetwear...", img: "public/assets/adidas_nmd_r1.jpg", modal_img: "public/assets/adidas_nmd_r1_modal.jpg" },
+      { id: 10, name: "Nike Air Force 1", price: 2200000, brand: "Nike", color: "Trắng", desc: "Thiết kế huyền thoại...", img: "public/assets/nike_air_force1.jpg", modal_img: "public/assets/nike_air_force1_modal.jpg" },
+      { id: 11, name: "Converse Chuck 70", price: 1600000, brand: "Converse", color: "Đen trắng", desc: "Cổ điển pha hiện đại...", img: "public/assets/converse_chuck70.jpg", modal_img: "public/assets/converse_chuck70_modal.jpg" },
+      { id: 12, name: "Vans Slip-On", price: 1400000, brand: "Vans", color: "Carô đen trắng", desc: "Dễ mang, thoải mái...", img: "public/assets/vans_slipon.jpg", modal_img: "public/assets/vans_slipon_modal.jpg" },
+      { id: 13, name: "Puma Suede Classic", price: 1700000, brand: "Puma", color: "Đỏ đô", desc: "Chất liệu suede sang trọng...", img: "public/assets/puma_suede.jpg", modal_img: "public/assets/puma_suede_modal.jpg" },
+      { id: 14, name: "New Balance 997H", price: 2300000, brand: "New Balance", color: "Xanh navy", desc: "Thiết kế thời thượng...", img: "public/assets/nb_997h.jpg", modal_img: "public/assets/nb_997h_modal.jpg" },
+      { id: 15, name: "Reebok Club C 85", price: 1900000, brand: "Reebok", color: "Trắng xanh lá", desc: "Phong cách tennis cổ điển...", img: "public/assets/reebok_clubc85.jpg", modal_img: "public/assets/reebok_clubc85_modal.jpg" },
+      { id: 16, name: "Asics GT-2000", price: 3100000, brand: "Asics", color: "Xám xanh", desc: "Hỗ trợ chạy đường dài...", img: "public/assets/asics_gt2000.jpg", modal_img: "public/assets/asics_gt2000_modal.jpg" },
+      { id: 17, name: "Adidas Superstar", price: 2100000, brand: "Adidas", color: "Trắng sọc đen", desc: "Biểu tượng sneaker...", img: "public/assets/adidas_superstar.jpg", modal_img: "public/assets/adidas_superstar_modal.jpg" },
+      { id: 18, name: "Nike Pegasus 40", price: 2700000, brand: "Nike", color: "Xanh biển", desc: "Chạy bộ nhẹ nhàng...", img: "public/assets/nike_pegasus40.jpg", modal_img: "public/assets/nike_pegasus40_modal.jpg" },
+      { id: 19, name: "Converse Run Star Hike", price: 2500000, brand: "Converse", color: "Trắng đen", desc: "Đế giày độc đáo...", img: "public/assets/converse_runstar.jpg", modal_img: "public/assets/converse_runstar_modal.jpg" },
+      { id: 20, name: "Vans Era", price: 1350000, brand: "Vans", color: "Xanh dương", desc: "Phong cách trẻ trung...", img: "public/assets/vans_era.jpg", modal_img: "public/assets/vans_era_modal.jpg" },
+      { id: 21, name: "Puma Future Rider", price: 2000000, brand: "Puma", color: "Đen đỏ", desc: "Cảm giác chạy mượt mà...", img: "public/assets/puma_future_rider.jpg", modal_img: "public/assets/puma_future_rider_modal.jpg" },
+      { id: 22, name: "New Balance Fresh Foam", price: 2600000, brand: "New Balance", color: "Xám trắng", desc: "Êm ái từng bước...", img: "public/assets/nb_freshfoam.jpg", modal_img: "public/assets/nb_freshfoam_modal.jpg" },
+      { id: 23, name: "Reebok Zig Kinetica", price: 2400000, brand: "Reebok", color: "Cam neon", desc: "Năng động và nổi bật...", img: "public/assets/reebok_zigkinetica.jpg", modal_img: "public/assets/reebok_zigkinetica_modal.jpg" },
+      { id: 24, name: "Asics Nimbus 25", price: 3500000, brand: "Asics", color: "Tím pastel", desc: "Hỗ trợ tối đa khi chạy...", img: "public/assets/asics_nimbus25.jpg", modal_img: "public/assets/asics_nimbus25_modal.jpg" },
+      { id: 25, name: "Adidas Yeezy Boost 350", price: 6000000, brand: "Adidas", color: "Be xám", desc: "Thiết kế độc quyền...", img: "public/assets/adidas_yeezy350.jpg", modal_img: "public/assets/adidas_yeezy350_modal.jpg" },
+      { id: 26, name: "Nike Dunk Low", price: 2800000, brand: "Nike", color: "Đen trắng", desc: "Phong cách thời trang trẻ...", img: "public/assets/nike_dunklow.jpg", modal_img: "public/assets/nike_dunklow_modal.jpg" },
+      { id: 27, name: "Converse One Star", price: 1600000, brand: "Converse", color: "Đỏ đô", desc: "Phong cách retro cá tính...", img: "public/assets/converse_onestar.jpg", modal_img: "public/assets/converse_onestar_modal.jpg" },
+      { id: 28, name: "Vans Sk8-Hi", price: 1700000, brand: "Vans", color: "Đen sọc trắng", desc: "Cổ cao bảo vệ mắt cá...", img: "public/assets/vans_sk8hi.jpg", modal_img: "public/assets/vans_sk8hi_modal.jpg" },
+      { id: 29, name: "Puma Cali", price: 1900000, brand: "Puma", color: "Trắng hồng", desc: "Phong cách nữ tính, năng động...", img: "public/assets/puma_cali.jpg", modal_img: "public/assets/puma_cali_modal.jpg" },
+      { id: 30, name: "New Balance 327", price: 2500000, brand: "New Balance", color: "Xanh rêu", desc: "Form dáng hiện đại...", img: "public/assets/nb_327.jpg", modal_img: "public/assets/nb_327_modal.jpg" },
+      { id: 31, name: "Reebok Nano X", price: 2700000, brand: "Reebok", color: "Đen cam", desc: "Giày tập gym chuyên dụng...", img: "public/assets/reebok_nanox.jpg", modal_img: "public/assets/reebok_nanox_modal.jpg" },
+      { id: 32, name: "Asics Metaspeed Sky", price: 5000000, brand: "Asics", color: "Đỏ neon", desc: "Hiệu suất cao cho vận động viên...", img: "public/assets/asics_metaspeed.jpg", modal_img: "public/assets/asics_metaspeed_modal.jpg" },
+      { id: 33, name: "Adidas Forum Low", price: 2400000, brand: "Adidas", color: "Trắng xanh", desc: "Retro nhưng thời trang...", img: "public/assets/adidas_forumlow.jpg", modal_img: "public/assets/adidas_forumlow_modal.jpg" },
+      { id: 34, name: "Nike Blazer Mid", price: 2300000, brand: "Nike", color: "Trắng cam", desc: "Cổ cao phong cách vintage...", img: "public/assets/nike_blazer.jpg", modal_img: "public/assets/nike_blazer_modal.jpg" },
+      { id: 35, name: "Converse Jack Purcell", price: 1800000, brand: "Converse", color: "Trắng xanh", desc: "Form gọn gàng, tinh tế...", img: "public/assets/converse_jackpurcell.jpg", modal_img: "public/assets/converse_jackpurcell_modal.jpg" },
+      { id: 36, name: "Vans Authentic", price: 1300000, brand: "Vans", color: "Đỏ tươi", desc: "Thiết kế đơn giản, dễ phối đồ...", img: "public/assets/vans_authentic.jpg", modal_img: "public/assets/vans_authentic_modal.jpg" },
+      { id: 37, name: "Puma Smash", price: 1500000, brand: "Puma", color: "Trắng xanh navy", desc: "Nhẹ và thoải mái...", img: "public/assets/puma_smash.jpg", modal_img: "public/assets/puma_smash_modal.jpg" },
+      { id: 38, name: "New Balance 1080v12", price: 3200000, brand: "New Balance", color: "Xanh dương", desc: "Êm ái tối đa...", img: "public/assets/nb_1080v12.jpg", modal_img: "public/assets/nb_1080v12_modal.jpg" },
+      { id: 39, name: "Reebok Floatride", price: 2800000, brand: "Reebok", color: "Tím hồng", desc: "Chạy đường dài êm mượt...", img: "public/assets/reebok_floatride.jpg", modal_img: "public/assets/reebok_floatride_modal.jpg" },
+      { id: 40, name: "Asics Novablast 3", price: 3400000, brand: "Asics", color: "Vàng neon", desc: "Bật nảy và phản hồi tốt...", img: "public/assets/asics_novablast3.jpg", modal_img: "public/assets/asics_novablast3_modal.jpg" },
+      { id: 41, name: "Adidas Gazelle", price: 1900000, brand: "Adidas", color: "Đỏ trắng", desc: "Retro cổ điển...", img: "public/assets/adidas_gazelle.jpg", modal_img: "public/assets/adidas_gazelle_modal.jpg" },
+      { id: 42, name: "Nike Air Max 90", price: 3000000, brand: "Nike", color: "Xám đỏ", desc: "Iconic sneaker của Nike...", img: "public/assets/nike_airmax90.jpg", modal_img: "public/assets/nike_airmax90_modal.jpg" },
+      { id: 43, name: "Converse All Star Lift", price: 2000000, brand: "Converse", color: "Trắng platform", desc: "Đế nâng tạo phong cách...", img: "public/assets/converse_allstarlift.jpg", modal_img: "public/assets/converse_allstarlift_modal.jpg" },
+      { id: 44, name: "Vans Bold Ni", price: 1600000, brand: "Vans", color: "Xanh lá", desc: "Thiết kế lạ mắt...", img: "public/assets/vans_boldni.jpg", modal_img: "public/assets/vans_boldni_modal.jpg" },
+      { id: 45, name: "Puma Mirage Sport", price: 2100000, brand: "Puma", color: "Hồng tím", desc: "Năng động, hiện đại...", img: "public/assets/puma_mirage.jpg", modal_img: "public/assets/puma_mirage_modal.jpg" },
+      { id: 46, name: "New Balance 550", price: 2600000, brand: "New Balance", color: "Trắng xanh lá", desc: "Phong cách cổ điển bóng rổ...", img: "public/assets/nb_550.jpg", modal_img: "public/assets/nb_550_modal.jpg" },
+      { id: 47, name: "Reebok Instapump Fury", price: 3500000, brand: "Reebok", color: "Vàng đỏ", desc: "Công nghệ bơm khí độc đáo...", img: "public/assets/reebok_instapump.jpg", modal_img: "public/assets/reebok_instapump_modal.jpg" },
+      { id: 48, name: "Asics Gel-Lyte III", price: 2500000, brand: "Asics", color: "Xanh ngọc", desc: "Phong cách retro thể thao...", img: "public/assets/asics_gellyte.jpg", modal_img: "public/assets/asics_gellyte_modal.jpg" },
+      { id: 49, name: "Adidas Terrex Swift", price: 3300000, brand: "Adidas", color: "Xám đen", desc: "Giày leo núi địa hình...", img: "public/assets/adidas_terrex.jpg", modal_img: "public/assets/adidas_terrex_modal.jpg" },
+      { id: 50, name: "Nike React Infinity", price: 3200000, brand: "Nike", color: "Hồng đen", desc: "Giảm chấn tối ưu khi chạy...", img: "public/assets/nike_reactinfinity.jpg", modal_img: "public/assets/nike_reactinfinity_modal.jpg" },
+      { id: 51, name: "Converse Pro Leather", price: 2200000, brand: "Converse", color: "Trắng vàng", desc: "Phong cách bóng rổ cổ điển...", img: "public/assets/converse_proleather.jpg", modal_img: "public/assets/converse_proleather_modal.jpg" },
+      { id: 52, name: "Vans Ultrarange", price: 2500000, brand: "Vans", color: "Xanh navy", desc: "Thoải mái cả ngày...", img: "public/assets/vans_ultrarange.jpg", modal_img: "public/assets/vans_ultrarange_modal.jpg" },
+      { id: 53, name: "Puma RS-X³", price: 3000000, brand: "Puma", color: "Cam xanh", desc: "Thiết kế nổi bật...", img: "public/assets/puma_rsx3.jpg", modal_img: "public/assets/puma_rsx3_modal.jpg" },
+      { id: 54, name: "New Balance 860v12", price: 3100000, brand: "New Balance", color: "Xám cam", desc: "Ổn định và hỗ trợ tối đa...", img: "public/assets/nb_860v12.jpg", modal_img: "public/assets/nb_860v12_modal.jpg" },
+      { id: 55, name: "Reebok Classic Leather", price: 2000000, brand: "Reebok", color: "Trắng đen", desc: "Thiết kế timeless...", img: "public/assets/reebok_classicleather.jpg", modal_img: "public/assets/reebok_classicleather_modal.jpg" }
     ];
 
     const productGrid = document.getElementById('productGrid');
     const brandFilter = document.getElementById('brandFilter');
+    const sortSelect = document.getElementById('sortSelect');
 
+    // Tạo danh sách hãng trong dropdown
     function populateBrandFilter() {
       const brands = [...new Set(products.map(p => p.brand))].sort();
       brands.forEach(b => {
@@ -170,41 +219,49 @@
       });
     }
 
-    document.getElementById('sortSelect').addEventListener('change', function () {
-      const value = this.value;
+    // Hàm áp dụng filter + sort
+    function applyFiltersAndSort() {
       let list = [...products];
 
-      if (value === 'priceAsc') list.sort((a, b) => a.price - b.price);
-      if (value === 'priceDesc') list.sort((a, b) => b.price - a.price);
-      if (value === 'nameAsc') list.sort((a, b) => a.name.localeCompare(b.name));
-      if (value === 'nameDesc') list.sort((a, b) => b.name.localeCompare(a.name));
+      // Lọc theo hãng
+      const selectedBrand = brandFilter.value;
+      if (selectedBrand) {
+        list = list.filter(p => p.brand === selectedBrand);
+      }
 
-      renderProducts(brandFilter.value, '', list);
-    });
+      // Sắp xếp
+      const sortValue = sortSelect.value;
+      if (sortValue === 'priceAsc') list.sort((a, b) => a.price - b.price);
+      if (sortValue === 'priceDesc') list.sort((a, b) => b.price - a.price);
+      if (sortValue === 'nameAsc') list.sort((a, b) => a.name.localeCompare(b.name));
+      if (sortValue === 'nameDesc') list.sort((a, b) => b.name.localeCompare(a.name));
 
+      renderProducts(list);
+    }
 
-    function renderProducts(filterBrand = '') {
+    // Render sản phẩm ra grid
+    function renderProducts(list = products) {
       productGrid.innerHTML = '';
-      const list = products.filter(p => !filterBrand || p.brand === filterBrand);
       list.forEach(p => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-          <img src="${p.img}" alt="${p.name}">
-          <h4>${p.name}</h4>
-          <p>Giá: ${p.price.toLocaleString()}đ</p>
-          <div class="product-actions">
-            <button class="view-btn" onclick="openModal(${p.id})">Xem chi tiết</button>
-            <button class="quick-add" onclick="quickAddToCart(${p.id})"><i class="fa-solid fa-cart-plus"></i></button>
-          </div>
-        `;
+      <img src="${p.img}" alt="${p.name}">
+      <h4>${p.name}</h4>
+      <p>Giá: ${p.price.toLocaleString()}đ</p>
+      <div class="product-actions">
+        <button class="view-btn" onclick="openModal(${p.id})">Xem chi tiết</button>
+        <button class="quick-add" onclick="quickAddToCart(${p.id})"><i class="fa-solid fa-cart-plus"></i></button>
+      </div>
+    `;
         productGrid.appendChild(card);
       });
     }
 
-    brandFilter.addEventListener('change', (e) => {
-      renderProducts(e.target.value);
-    });
+    // Event
+    brandFilter.addEventListener('change', applyFiltersAndSort);
+    sortSelect.addEventListener('change', applyFiltersAndSort);
+
 
     // Modal & cart logic (reused + slightly simplified)
     const USERS_KEY = 'users_list';
@@ -277,7 +334,7 @@
         list.innerHTML += `<li>
         <img src="${it.img}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle;">
         ${it.name} <b>${(it.price).toLocaleString()}đ</b> x ${it.qty || 1}
-        <button onclick="removeFromCart(${idx})" style="float:right">X</button>
+        <button onclick="removeFromCart(${idx})" style="float:right;background:#000;color:#fff;border:none;padding:4px 8px;border-radius:10px;cursor:pointer;">X</button>
       </li>`;
       });
 
@@ -342,6 +399,32 @@
     }
 
     function closeCheckoutPopup() { document.getElementById('checkoutPopup').style.display = 'none'; }
+    document.getElementById('checkoutForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('fullname').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const paymentMethod = document.getElementById('paymentMethod').value;
+
+      if (!name || !phone || !address || !paymentMethod) {
+        alert('Vui lòng điền đầy đủ thông tin và chọn phương thức thanh toán!');
+        return;
+      }
+
+      alert(
+        `Thanh toán thành công!\n` +
+        `Tên: ${name}\n` +
+        `SĐT: ${phone}\n` +
+        `Địa chỉ: ${address}\n` +
+        `Phương thức: ${paymentMethod}`
+      );
+
+      closeCheckoutPopup();
+      localStorage.removeItem(cartKeyForUser(getCurrentUser().username));
+      updateCartCount();
+      renderCartPopup();
+    });
 
     function removeFromCart(index) { let cart = getCart(); if (index < 0 || index >= cart.length) return; cart.splice(index, 1); saveCart(cart); renderCartPopup(); }
     function clearCart() { const cur = getCurrentUser(); if (!cur) return; localStorage.removeItem(cartKeyForUser(cur.username)); renderCartPopup(); updateCartCount(); }
