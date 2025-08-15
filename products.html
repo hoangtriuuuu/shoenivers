@@ -130,11 +130,26 @@
               <option value="Bank">Chuyển khoản ngân hàng</option>
               <option value="Momo">Ví điện tử Momo</option>
             </select>
+            <input type="text" id="promoCode" placeholder="Mã giảm giá">
+            <button onclick="applyPromoCode()">Áp dụng</button>
+            <div id="checkoutTotal_discount"></div>
             <textarea id="note" placeholder="Ghi chú"></textarea>
             <button type="submit">Xác nhận thanh toán</button>
           </form>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Popup QR -->
+  <div id="qrPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; 
+    background:rgba(0,0,0,0.6); justify-content:center; align-items:center;">
+    <div class="qr-popup-content" style="background:#fff; padding:20px; border-radius:10px; text-align:center;">
+      <h3>Quét mã để thanh toán</h3>
+      <img id="qrImage" src="" alt="QR Code" style="max-width:500px; display:block; margin:0 auto;">
+      <br>
+      <button id="confirmPaidBtn">Xác nhận đã thanh toán</button>
+      <button id="cancelBtn">Hủy</button>
     </div>
   </div>
 
@@ -347,6 +362,32 @@
       </div>`;
     }
 
+    // Hashtable chứa mã giảm giá và % giảm
+    const promoCodes = {
+      "SALE10": 10,
+      "SALE20": 20,
+      "FREESHIP": 0,
+      "SALE100": 100
+    };
+
+    // Lưu % giảm giá hiện tại
+    let currentDiscountPercent = 0;
+
+    // Áp dụng mã giảm giá
+    function applyPromoCode() {
+      const inputCode = document.getElementById("promoCode").value.trim().toUpperCase();
+
+      if (promoCodes.hasOwnProperty(inputCode)) {
+        currentDiscountPercent = promoCodes[inputCode];
+        alert(`Áp dụng mã ${inputCode}: giảm ${currentDiscountPercent}%`);
+      } else {
+        currentDiscountPercent = 0;
+        alert("Mã giảm giá không hợp lệ");
+      }
+
+      updateCheckoutTotal();
+    }
+
     function checkout() {
       const cart = getCart();
       const list = document.getElementById('checkoutItems');
@@ -363,16 +404,16 @@
           total += itemTotal;
 
           list.innerHTML += `
-          <li>
-            <input type="checkbox" class="checkout-item-check" data-id="${it.id}" checked>
-            <img src="${it.img}" alt="">
-            <div class="item-info">
-              <div>${it.name}</div>
-              <div>Số lượng: ${it.qty || 1}</div>
-            </div>
-            <div class="item-price">${itemTotal.toLocaleString()}đ</div>
-          </li>
-        `;
+        <li>
+          <input type="checkbox" class="checkout-item-check" data-id="${it.id}" checked>
+          <img src="${it.img}" alt="">
+          <div class="item-info">
+            <div>${it.name}</div>
+            <div>Số lượng: ${it.qty || 1}</div>
+          </div>
+          <div class="item-price">${itemTotal.toLocaleString()}đ</div>
+        </li>
+      `;
         });
 
         document.getElementById('checkoutTotal').textContent = total.toLocaleString();
@@ -392,19 +433,44 @@
       document.querySelectorAll('.checkout-item-check:checked').forEach(chk => {
         const id = parseInt(chk.getAttribute('data-id'));
         const item = cart.find(i => i.id === id);
-        if (item) { total += item.price * (item.qty || 1); }
+        if (item) {
+          total += item.price * (item.qty || 1);
+        }
       });
+
+      // Tính tiền giảm giá
+      const discountAmount = currentDiscountPercent > 0
+        ? total * currentDiscountPercent / 100
+        : 0;
+
+      const finalTotal = total - discountAmount;
+
+      // Hiển thị chi tiết
+      document.getElementById('checkoutTotal_discount').innerHTML = `
+    <div>Tổng ban đầu: ${total.toLocaleString()}đ</div>
+    ${discountAmount > 0 ? `<div>Giảm ${currentDiscountPercent}%: -${discountAmount.toLocaleString()}đ</div>` : ''}
+    <div><b>Tổng thanh toán: ${finalTotal.toLocaleString()}đ</b></div>
+  `;
+
+      // Áp dụng % giảm giá nếu có
+      if (currentDiscountPercent > 0) {
+        total = total - (total * currentDiscountPercent / 100);
+      }
 
       document.getElementById('checkoutTotal').textContent = total.toLocaleString();
     }
 
-    function closeCheckoutPopup() { document.getElementById('checkoutPopup').style.display = 'none'; }
+    function closeCheckoutPopup() {
+      document.getElementById('checkoutPopup').style.display = 'none';
+    }
+
     document.getElementById('checkoutForm').addEventListener('submit', function (e) {
       e.preventDefault();
 
       const name = document.getElementById('fullname').value.trim();
       const phone = document.getElementById('phone').value.trim();
       const address = document.getElementById('address').value.trim();
+      const promoCode = document.getElementById('promoCode').value.trim();
       const paymentMethod = document.getElementById('paymentMethod').value;
 
       if (!name || !phone || !address || !paymentMethod) {
@@ -412,19 +478,49 @@
         return;
       }
 
+      // Nếu là Bank hoặc Momo => hiện popup QR
+      if (paymentMethod === "Bank" || paymentMethod === "Momo") {
+        const qrImage = document.getElementById("qrImage");
+        qrImage.src = paymentMethod === "Bank" ? "public/assets/qr/qr-bank.jpg" : "./public/assets/qr/qr-momo.jpg";
+
+        document.getElementById("qrPopup").style.display = "flex";
+
+        // Gắn sự kiện xác nhận thanh toán
+        document.getElementById("confirmPaidBtn").onclick = function () {
+          document.getElementById("qrPopup").style.display = "none";
+          finishPayment(name, phone, address, promoCode, paymentMethod);
+        };
+
+        // Nút hủy
+        document.getElementById("cancelBtn").onclick = function () {
+          document.getElementById("qrPopup").style.display = "none";
+        };
+        closeCheckoutPopup();
+        alert("Vui lòng quét mã QR để thanh toán. Sau khi quét, nhấn 'Xác nhận đã thanh toán' để hoàn tất.");
+        return; // Dừng ở đây, chờ user xác nhận
+      }
+
+      // Nếu COD thì thanh toán luôn
+      finishPayment(name, phone, address, promoCode, paymentMethod);
+    });
+
+    // Hàm xử lý khi thanh toán thành công
+    function finishPayment(name, phone, address, promoCode, paymentMethod) {
       alert(
         `Thanh toán thành công!\n` +
         `Tên: ${name}\n` +
         `SĐT: ${phone}\n` +
         `Địa chỉ: ${address}\n` +
+        `Mã giảm giá: ${promoCode}\n` +
         `Phương thức: ${paymentMethod}`
       );
-
+      
       closeCheckoutPopup();
       localStorage.removeItem(cartKeyForUser(getCurrentUser().username));
       updateCartCount();
       renderCartPopup();
-    });
+    }
+
 
     function removeFromCart(index) { let cart = getCart(); if (index < 0 || index >= cart.length) return; cart.splice(index, 1); saveCart(cart); renderCartPopup(); }
     function clearCart() { const cur = getCurrentUser(); if (!cur) return; localStorage.removeItem(cartKeyForUser(cur.username)); renderCartPopup(); updateCartCount(); }
