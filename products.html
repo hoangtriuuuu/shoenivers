@@ -41,8 +41,11 @@
           <option value="nameAsc">Tên A → Z</option>
           <option value="nameDesc">Tên Z → A</option>
         </select>
+        <select id="colorFilter">
+          <option value="">-- Color --</option>
+        </select>
         <select id="brandFilter">
-          <option value="">Tất cả</option>
+          <option value="">-- Brand --</option>
         </select>
       </div>
     </div>
@@ -58,6 +61,9 @@
       <input type="file" id="avatarInput" accept="image/*" style="display:none;">
       <h3 id="popupName"></h3>
       <p id="popupEmail"></p>
+      <hr>
+      <br>
+      <p id="popupRole"></p>
     </div>
   </div>
 
@@ -153,6 +159,87 @@
     </div>
   </div>
 
+  <div id="toast-container"></div>
+
+  <!-- DÀNH CHO ADMIN -->
+  <!-- Nút nổi -->
+  <div id="admin-nodes">
+    <div id="adminNode" class="fab">
+      <img src="public/assets/icon/setting.png" alt="Admin" />
+    </div>
+    <!-- Các node con -->
+    <div id="fabImage" class="fab-sub">
+      <span class="fab-label">Thay đổi hình nền</span>
+      <img src="public/assets/icon/image.png" alt="Thay đổi hình nền" />
+    </div>
+    <div id="fabProduct" class="fab-sub">
+      <span class="fab-label">Quản lý sản phẩm</span>
+      <img src="public/assets/icon/sneaker.png" alt="Quản lý sản phẩm" />
+    </div>
+    <div id="fabRevenue" class="fab-sub">
+      <span class="fab-label">Quản lý doanh thu</span>
+      <img src="public/assets/icon/cash.png" alt="Quản lý doanh thu" />
+    </div>
+  </div>
+
+  <!-- Popup quản lý sản phẩm -->
+  <div id="adminProductPopup" class="popup" style="display:none;">
+    <div class="popup-content">
+
+      <!-- Bên trái: danh sách -->
+      <div id="productListWrapper">
+        <h2>Danh sách sản phẩm</h2>
+        <ul id="adminProductList"></ul>
+      </div>
+
+      <!-- Bên phải: form -->
+      <div id="adminProductForm">
+        <h2>Thêm / Sửa sản phẩm</h2>
+        <br>
+        <input id="prodName" placeholder="Tên sản phẩm">
+        <input id="prodPrice" type="number" placeholder="Giá">
+        <input id="prodImg" placeholder="Link ảnh sản phẩm">
+        <input type="file" id="prodImgFile" accept="image/*">
+        <div id="imgPreviewWrapper">
+          <img id="imgPreview" style="max-width:150px; display:none; margin-top:10px;" />
+        </div>
+        <input id="modalImg" placeholder="Link ảnh modal">
+        <input type="file" id="modalImgFile" accept="image/*">
+        <div id="modalImgPreviewWrapper">
+          <img id="modalImgPreview" style="max-width:150px; display:none; margin-top:10px;" />
+        </div>
+
+        <label for="prodBrand">Hãng:</label>
+        <select id="prodBrand">
+          <option value="Nike">Nike</option>
+          <option value="Adidas">Adidas</option>
+          <option value="Puma">Puma</option>
+          <option value="Converse">Converse</option>
+          <option value="Vans">Vans</option>
+          <option value="Reebok">Reebok</option>
+          <option value="Asics">Asics</option>
+        </select>
+
+        <label for="prodColor">Màu sắc:</label>
+        <select id="prodColor">
+          <option value="Đen">Đen</option>
+          <option value="Trắng">Trắng</option>
+          <option value="Đỏ">Đỏ</option>
+          <option value="Xanh">Xanh</option>
+          <option value="Vàng">Vàng</option>
+          <option value="Hồng">Hồng</option>
+          <option value="Xám">Xám</option>
+          <option value="Nâu">Nâu</option>
+        </select>
+
+        <div class="form-actions">
+          <button id="btnSaveProduct" onclick="addProduct()">Thêm sản phẩm</button>
+          <button id="btnCancelProduct" onclick="closePopup('adminProductPopup')">Đóng</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // NAVBAR SCROLL EFFECT
     const navbar = document.getElementById('navbar');
@@ -160,68 +247,202 @@
       if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
     });
 
-    // dữ liệu products (sao y từ index.html)
-    const products = [
-      { id: 1, name: "Adidas Ultraboost", price: 3200000, brand: "Adidas", color: "Đen xám", desc: "Thiết kế hiện đại...", img: "public/assets/adidas_ultraboost.jpg", modal_img: "public/assets/adidas_ultraboost_modal.jpg" },
-      { id: 2, name: "Nike Air Zoom", price: 2500000, brand: "Nike", color: "Trắng đen", desc: "Giày chạy bộ nhẹ...", img: "public/assets/nike_air_zoom.jpg", modal_img: "public/assets/nike_air_zoom_modal.jpg" },
-      { id: 3, name: "Converse Classic", price: 1200000, brand: "Converse", color: "Trắng cổ điển", desc: "Phong cách basic...", img: "public/assets/converse_classic.jpg", modal_img: "public/assets/converse_classic_modal.jpg" },
-      { id: 4, name: "Vans Old Skool", price: 1500000, brand: "Vans", color: "Đen trắng", desc: "Chất liệu canvas...", img: "public/assets/vans_oldskool.jpg", modal_img: "public/assets/vans_oldskool_modal.jpg" },
-      { id: 5, name: "Puma RS-X", price: 2800000, brand: "Puma", color: "Xanh dương", desc: "Thiết kế thể thao...", img: "public/assets/puma_rsx.jpg", modal_img: "public/assets/puma_rsx_modal.jpg" },
-      { id: 6, name: "New Balance 574", price: 2000000, brand: "New Balance", color: "Xám cổ điển", desc: "Phong cách retro...", img: "public/assets/nb_574.jpg", modal_img: "public/assets/nb_574_modal.jpg" },
-      { id: 7, name: "Reebok Classic", price: 1800000, brand: "Reebok", color: "Trắng đỏ", desc: "Thiết kế đơn giản...", img: "public/assets/reebok_classic.jpg", modal_img: "public/assets/reebok_classic_modal.jpg" },
-      { id: 8, name: "Asics Gel-Kayano", price: 3000000, brand: "Asics", color: "Xanh lá", desc: "Giày chạy bộ cao cấp...", img: "public/assets/asics_gel_kayano.jpg", modal_img: "public/assets/asics_gel_kayano_modal.jpg" },
-      { id: 9, name: "Adidas NMD R1", price: 2900000, brand: "Adidas", color: "Đen trắng", desc: "Phong cách streetwear...", img: "public/assets/adidas_nmd_r1.jpg", modal_img: "public/assets/adidas_nmd_r1_modal.jpg" },
-      { id: 10, name: "Nike Air Force 1", price: 2200000, brand: "Nike", color: "Trắng", desc: "Thiết kế huyền thoại...", img: "public/assets/nike_air_force1.jpg", modal_img: "public/assets/nike_air_force1_modal.jpg" },
-      { id: 11, name: "Converse Chuck 70", price: 1600000, brand: "Converse", color: "Đen trắng", desc: "Cổ điển pha hiện đại...", img: "public/assets/converse_chuck70.jpg", modal_img: "public/assets/converse_chuck70_modal.jpg" },
-      { id: 12, name: "Vans Slip-On", price: 1400000, brand: "Vans", color: "Carô đen trắng", desc: "Dễ mang, thoải mái...", img: "public/assets/vans_slipon.jpg", modal_img: "public/assets/vans_slipon_modal.jpg" },
-      { id: 13, name: "Puma Suede Classic", price: 1700000, brand: "Puma", color: "Đỏ đô", desc: "Chất liệu suede sang trọng...", img: "public/assets/puma_suede.jpg", modal_img: "public/assets/puma_suede_modal.jpg" },
-      { id: 14, name: "New Balance 997H", price: 2300000, brand: "New Balance", color: "Xanh navy", desc: "Thiết kế thời thượng...", img: "public/assets/nb_997h.jpg", modal_img: "public/assets/nb_997h_modal.jpg" },
-      { id: 15, name: "Reebok Club C 85", price: 1900000, brand: "Reebok", color: "Trắng xanh lá", desc: "Phong cách tennis cổ điển...", img: "public/assets/reebok_clubc85.jpg", modal_img: "public/assets/reebok_clubc85_modal.jpg" },
-      { id: 16, name: "Asics GT-2000", price: 3100000, brand: "Asics", color: "Xám xanh", desc: "Hỗ trợ chạy đường dài...", img: "public/assets/asics_gt2000.jpg", modal_img: "public/assets/asics_gt2000_modal.jpg" },
-      { id: 17, name: "Adidas Superstar", price: 2100000, brand: "Adidas", color: "Trắng sọc đen", desc: "Biểu tượng sneaker...", img: "public/assets/adidas_superstar.jpg", modal_img: "public/assets/adidas_superstar_modal.jpg" },
-      { id: 18, name: "Nike Pegasus 40", price: 2700000, brand: "Nike", color: "Xanh biển", desc: "Chạy bộ nhẹ nhàng...", img: "public/assets/nike_pegasus40.jpg", modal_img: "public/assets/nike_pegasus40_modal.jpg" },
-      { id: 19, name: "Converse Run Star Hike", price: 2500000, brand: "Converse", color: "Trắng đen", desc: "Đế giày độc đáo...", img: "public/assets/converse_runstar.jpg", modal_img: "public/assets/converse_runstar_modal.jpg" },
-      { id: 20, name: "Vans Era", price: 1350000, brand: "Vans", color: "Xanh dương", desc: "Phong cách trẻ trung...", img: "public/assets/vans_era.jpg", modal_img: "public/assets/vans_era_modal.jpg" },
-      { id: 21, name: "Puma Future Rider", price: 2000000, brand: "Puma", color: "Đen đỏ", desc: "Cảm giác chạy mượt mà...", img: "public/assets/puma_future_rider.jpg", modal_img: "public/assets/puma_future_rider_modal.jpg" },
-      { id: 22, name: "New Balance Fresh Foam", price: 2600000, brand: "New Balance", color: "Xám trắng", desc: "Êm ái từng bước...", img: "public/assets/nb_freshfoam.jpg", modal_img: "public/assets/nb_freshfoam_modal.jpg" },
-      { id: 23, name: "Reebok Zig Kinetica", price: 2400000, brand: "Reebok", color: "Cam neon", desc: "Năng động và nổi bật...", img: "public/assets/reebok_zigkinetica.jpg", modal_img: "public/assets/reebok_zigkinetica_modal.jpg" },
-      { id: 24, name: "Asics Nimbus 25", price: 3500000, brand: "Asics", color: "Tím pastel", desc: "Hỗ trợ tối đa khi chạy...", img: "public/assets/asics_nimbus25.jpg", modal_img: "public/assets/asics_nimbus25_modal.jpg" },
-      { id: 25, name: "Adidas Yeezy Boost 350", price: 6000000, brand: "Adidas", color: "Be xám", desc: "Thiết kế độc quyền...", img: "public/assets/adidas_yeezy350.jpg", modal_img: "public/assets/adidas_yeezy350_modal.jpg" },
-      { id: 26, name: "Nike Dunk Low", price: 2800000, brand: "Nike", color: "Đen trắng", desc: "Phong cách thời trang trẻ...", img: "public/assets/nike_dunklow.jpg", modal_img: "public/assets/nike_dunklow_modal.jpg" },
-      { id: 27, name: "Converse One Star", price: 1600000, brand: "Converse", color: "Đỏ đô", desc: "Phong cách retro cá tính...", img: "public/assets/converse_onestar.jpg", modal_img: "public/assets/converse_onestar_modal.jpg" },
-      { id: 28, name: "Vans Sk8-Hi", price: 1700000, brand: "Vans", color: "Đen sọc trắng", desc: "Cổ cao bảo vệ mắt cá...", img: "public/assets/vans_sk8hi.jpg", modal_img: "public/assets/vans_sk8hi_modal.jpg" },
-      { id: 29, name: "Puma Cali", price: 1900000, brand: "Puma", color: "Trắng hồng", desc: "Phong cách nữ tính, năng động...", img: "public/assets/puma_cali.jpg", modal_img: "public/assets/puma_cali_modal.jpg" },
-      { id: 30, name: "New Balance 327", price: 2500000, brand: "New Balance", color: "Xanh rêu", desc: "Form dáng hiện đại...", img: "public/assets/nb_327.jpg", modal_img: "public/assets/nb_327_modal.jpg" },
-      { id: 31, name: "Reebok Nano X", price: 2700000, brand: "Reebok", color: "Đen cam", desc: "Giày tập gym chuyên dụng...", img: "public/assets/reebok_nanox.jpg", modal_img: "public/assets/reebok_nanox_modal.jpg" },
-      { id: 32, name: "Asics Metaspeed Sky", price: 5000000, brand: "Asics", color: "Đỏ neon", desc: "Hiệu suất cao cho vận động viên...", img: "public/assets/asics_metaspeed.jpg", modal_img: "public/assets/asics_metaspeed_modal.jpg" },
-      { id: 33, name: "Adidas Forum Low", price: 2400000, brand: "Adidas", color: "Trắng xanh", desc: "Retro nhưng thời trang...", img: "public/assets/adidas_forumlow.jpg", modal_img: "public/assets/adidas_forumlow_modal.jpg" },
-      { id: 34, name: "Nike Blazer Mid", price: 2300000, brand: "Nike", color: "Trắng cam", desc: "Cổ cao phong cách vintage...", img: "public/assets/nike_blazer.jpg", modal_img: "public/assets/nike_blazer_modal.jpg" },
-      { id: 35, name: "Converse Jack Purcell", price: 1800000, brand: "Converse", color: "Trắng xanh", desc: "Form gọn gàng, tinh tế...", img: "public/assets/converse_jackpurcell.jpg", modal_img: "public/assets/converse_jackpurcell_modal.jpg" },
-      { id: 36, name: "Vans Authentic", price: 1300000, brand: "Vans", color: "Đỏ tươi", desc: "Thiết kế đơn giản, dễ phối đồ...", img: "public/assets/vans_authentic.jpg", modal_img: "public/assets/vans_authentic_modal.jpg" },
-      { id: 37, name: "Puma Smash", price: 1500000, brand: "Puma", color: "Trắng xanh navy", desc: "Nhẹ và thoải mái...", img: "public/assets/puma_smash.jpg", modal_img: "public/assets/puma_smash_modal.jpg" },
-      { id: 38, name: "New Balance 1080v12", price: 3200000, brand: "New Balance", color: "Xanh dương", desc: "Êm ái tối đa...", img: "public/assets/nb_1080v12.jpg", modal_img: "public/assets/nb_1080v12_modal.jpg" },
-      { id: 39, name: "Reebok Floatride", price: 2800000, brand: "Reebok", color: "Tím hồng", desc: "Chạy đường dài êm mượt...", img: "public/assets/reebok_floatride.jpg", modal_img: "public/assets/reebok_floatride_modal.jpg" },
-      { id: 40, name: "Asics Novablast 3", price: 3400000, brand: "Asics", color: "Vàng neon", desc: "Bật nảy và phản hồi tốt...", img: "public/assets/asics_novablast3.jpg", modal_img: "public/assets/asics_novablast3_modal.jpg" },
-      { id: 41, name: "Adidas Gazelle", price: 1900000, brand: "Adidas", color: "Đỏ trắng", desc: "Retro cổ điển...", img: "public/assets/adidas_gazelle.jpg", modal_img: "public/assets/adidas_gazelle_modal.jpg" },
-      { id: 42, name: "Nike Air Max 90", price: 3000000, brand: "Nike", color: "Xám đỏ", desc: "Iconic sneaker của Nike...", img: "public/assets/nike_airmax90.jpg", modal_img: "public/assets/nike_airmax90_modal.jpg" },
-      { id: 43, name: "Converse All Star Lift", price: 2000000, brand: "Converse", color: "Trắng platform", desc: "Đế nâng tạo phong cách...", img: "public/assets/converse_allstarlift.jpg", modal_img: "public/assets/converse_allstarlift_modal.jpg" },
-      { id: 44, name: "Vans Bold Ni", price: 1600000, brand: "Vans", color: "Xanh lá", desc: "Thiết kế lạ mắt...", img: "public/assets/vans_boldni.jpg", modal_img: "public/assets/vans_boldni_modal.jpg" },
-      { id: 45, name: "Puma Mirage Sport", price: 2100000, brand: "Puma", color: "Hồng tím", desc: "Năng động, hiện đại...", img: "public/assets/puma_mirage.jpg", modal_img: "public/assets/puma_mirage_modal.jpg" },
-      { id: 46, name: "New Balance 550", price: 2600000, brand: "New Balance", color: "Trắng xanh lá", desc: "Phong cách cổ điển bóng rổ...", img: "public/assets/nb_550.jpg", modal_img: "public/assets/nb_550_modal.jpg" },
-      { id: 47, name: "Reebok Instapump Fury", price: 3500000, brand: "Reebok", color: "Vàng đỏ", desc: "Công nghệ bơm khí độc đáo...", img: "public/assets/reebok_instapump.jpg", modal_img: "public/assets/reebok_instapump_modal.jpg" },
-      { id: 48, name: "Asics Gel-Lyte III", price: 2500000, brand: "Asics", color: "Xanh ngọc", desc: "Phong cách retro thể thao...", img: "public/assets/asics_gellyte.jpg", modal_img: "public/assets/asics_gellyte_modal.jpg" },
-      { id: 49, name: "Adidas Terrex Swift", price: 3300000, brand: "Adidas", color: "Xám đen", desc: "Giày leo núi địa hình...", img: "public/assets/adidas_terrex.jpg", modal_img: "public/assets/adidas_terrex_modal.jpg" },
-      { id: 50, name: "Nike React Infinity", price: 3200000, brand: "Nike", color: "Hồng đen", desc: "Giảm chấn tối ưu khi chạy...", img: "public/assets/nike_reactinfinity.jpg", modal_img: "public/assets/nike_reactinfinity_modal.jpg" },
-      { id: 51, name: "Converse Pro Leather", price: 2200000, brand: "Converse", color: "Trắng vàng", desc: "Phong cách bóng rổ cổ điển...", img: "public/assets/converse_proleather.jpg", modal_img: "public/assets/converse_proleather_modal.jpg" },
-      { id: 52, name: "Vans Ultrarange", price: 2500000, brand: "Vans", color: "Xanh navy", desc: "Thoải mái cả ngày...", img: "public/assets/vans_ultrarange.jpg", modal_img: "public/assets/vans_ultrarange_modal.jpg" },
-      { id: 53, name: "Puma RS-X³", price: 3000000, brand: "Puma", color: "Cam xanh", desc: "Thiết kế nổi bật...", img: "public/assets/puma_rsx3.jpg", modal_img: "public/assets/puma_rsx3_modal.jpg" },
-      { id: 54, name: "New Balance 860v12", price: 3100000, brand: "New Balance", color: "Xám cam", desc: "Ổn định và hỗ trợ tối đa...", img: "public/assets/nb_860v12.jpg", modal_img: "public/assets/nb_860v12_modal.jpg" },
-      { id: 55, name: "Reebok Classic Leather", price: 2000000, brand: "Reebok", color: "Trắng đen", desc: "Thiết kế timeless...", img: "public/assets/reebok_classicleather.jpg", modal_img: "public/assets/reebok_classicleather_modal.jpg" }
-    ];
+    // Render products data
+    let products = JSON.parse(localStorage.getItem("products")) || [];
+    let editIndex = null;
 
-    const productGrid = document.getElementById('productGrid');
-    const brandFilter = document.getElementById('brandFilter');
-    const sortSelect = document.getElementById('sortSelect');
+    function saveProducts() {
+      localStorage.setItem("products", JSON.stringify(products));
+      renderAdminProductList();
+      renderShopProducts();
+    }
+
+    function renderAdminProductList() {
+      const listEl = document.getElementById("adminProductList");
+      listEl.innerHTML = "";
+
+      if (products.length === 0) {
+        listEl.innerHTML = "<li>Chưa có sản phẩm nào</li>";
+        return;
+      }
+
+      products.forEach((prod, index) => {
+        const li = document.createElement("li");
+        li.classList.add("product-item");
+        li.innerHTML = `
+      <div class="img-frame"><img src="${prod.img}" alt="${prod.name}" class="product-thumb"></div>
+      <div class="product-info">
+        <strong>${prod.name}</strong> ${Number(prod.price).toLocaleString()}đ <hr>
+        <strong>Hãng</strong>: ${prod.brand} 
+        <br><strong>Màu</strong>: ${prod.color}
+      </div>
+      <div class="product-actions">
+        <button onclick="editProduct(${index})">Sửa</button>
+        <button onclick="deleteProduct(${index})">Xóa</button>
+      </div>
+    `;
+        listEl.appendChild(li);
+      });
+    }
+
+    // ================== PREVIEW ẢNH CHÍNH ==================
+    const prodImgFile = document.getElementById("prodImgFile");
+    const imgPreview = document.getElementById("imgPreview");
+
+    prodImgFile.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imgPreview.src = e.target.result;
+          imgPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        imgPreview.src = "";
+        imgPreview.style.display = "none";
+      }
+    });
+
+    // ================== PREVIEW ẢNH MODAL ==================
+    const modalImgFile = document.getElementById("modalImgFile");
+    const modalImgPreview = document.getElementById("modalImgPreview");
+
+    modalImgFile.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          modalImgPreview.src = e.target.result;
+          modalImgPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      } else {
+        modalImgPreview.src = "";
+        modalImgPreview.style.display = "none";
+      }
+    });
+
+    // ================== ADD / EDIT PRODUCT ==================
+    function addProduct() {
+      const name = document.getElementById("prodName").value.trim();
+      const price = parseFloat(document.getElementById("prodPrice").value);
+      const brand = document.getElementById("prodBrand").value;
+      const color = document.getElementById("prodColor").value;
+
+      const imgLink = document.getElementById("prodImg").value.trim();
+      const fileInput = document.getElementById("prodImgFile");
+      const file = fileInput.files[0];
+
+      const modalImgLink = document.getElementById("modalImg").value.trim();
+      const modalFileInput = document.getElementById("modalImgFile");
+      const modalFile = modalFileInput.files[0];
+
+      if (!name || isNaN(price) || (!imgLink && !file)) {
+        showToast("Vui lòng nhập đủ thông tin hoặc chọn ảnh!");
+        return;
+      }
+
+      // debug check
+      console.log("Thêm/Sửa sản phẩm:", { name, price, brand, color, imgLink, file, modalImgLink, modalFile });
+
+      // Lưu sản phẩm sau khi đã xử lý ảnh
+      const saveProductData = (imgSrc, modalImgSrc) => {
+        const product = { id: Date.now(), name, price, img: imgSrc, modalImg: modalImgSrc, brand, color };
+
+        if (editIndex === null) {
+          products.push(product);
+          console.log("Đã thêm sản phẩm mới:", product);
+          showToast("Thêm sản phẩm thành công!");
+        } else {
+          product.id = products[editIndex].id; // giữ id cũ
+          products[editIndex] = product;
+          console.log("Đã sửa sản phẩm:", product);
+          showToast("Sửa sản phẩm thành công!");
+          editIndex = null;
+          document.getElementById("btnSaveProduct").innerText = "Thêm sản phẩm";
+        }
+
+        saveProducts();
+        resetForm();
+      };
+
+      // Xử lý chuỗi bất đồng bộ cho cả ảnh chính và modal
+      const handleModalImage = (mainImgSrc) => {
+        if (modalFile) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            saveProductData(mainImgSrc, e.target.result);
+          };
+          reader.readAsDataURL(modalFile);
+        } else {
+          saveProductData(mainImgSrc, modalImgLink || "");
+        }
+      };
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          handleModalImage(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        handleModalImage(imgLink);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById("prodName").value = "";
+      document.getElementById("prodPrice").value = "";
+      document.getElementById("prodImg").value = "";
+      document.getElementById("prodImgFile").value = "";
+      document.getElementById("modalImg").value = "";
+      document.getElementById("modalImgFile").value = "";
+      document.getElementById("prodBrand").value = "Nike";
+      document.getElementById("prodColor").value = "Đen";
+      document.getElementById("btnSaveProduct").innerText = "Thêm sản phẩm";
+      imgPreview.style.display = "none";
+      modalImgPreview.style.display = "none";
+      editIndex = null;
+    }
+
+    function editProduct(index) {
+      const prod = products[index];
+      document.getElementById("prodName").value = prod.name;
+      document.getElementById("prodPrice").value = prod.price;
+      document.getElementById("prodImg").value = prod.img;
+      document.getElementById("prodBrand").value = prod.brand;
+      document.getElementById("prodColor").value = prod.color;
+      document.getElementById("modalImg").value = prod.modalImg || "";
+      document.getElementById("btnSaveProduct").innerText = "Lưu sản phẩm";
+      editIndex = index;
+
+      // Hiện preview
+      imgPreview.src = prod.img;
+      imgPreview.style.display = "block";
+
+      if (prod.modalImg) {
+        modalImgPreview.src = prod.modalImg;
+        modalImgPreview.style.display = "block";
+      } else {
+        modalImgPreview.src = "";
+        modalImgPreview.style.display = "none";
+      }
+    }
+
+    function deleteProduct(index) {
+      if (confirm("Xóa sản phẩm này?")) {
+        products.splice(index, 1);
+        saveProducts();
+        showToast("Xóa sản phẩm thành công!");
+      }
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAdminProductList();
+      renderShopProducts();
+    });
 
     // Tạo danh sách hãng trong dropdown
     function populateBrandFilter() {
@@ -231,6 +452,16 @@
         opt.value = b;
         opt.textContent = b;
         brandFilter.appendChild(opt);
+      });
+    }
+    // Tạo danh sách màu trong dropdown
+    function populateColorFilter() {
+      const colors = [...new Set(products.map(p => p.color))].sort();
+      colors.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = c;
+        colorFilter.appendChild(opt);
       });
     }
 
@@ -243,7 +474,11 @@
       if (selectedBrand) {
         list = list.filter(p => p.brand === selectedBrand);
       }
-
+      // Lọc theo màu
+      const selectedColor = colorFilter.value;
+      if (selectedColor) {
+        list = list.filter(p => p.color === selectedColor);
+      }
       // Sắp xếp
       const sortValue = sortSelect.value;
       if (sortValue === 'priceAsc') list.sort((a, b) => a.price - b.price);
@@ -275,6 +510,7 @@
 
     // Event
     brandFilter.addEventListener('change', applyFiltersAndSort);
+    colorFilter.addEventListener('change', applyFiltersAndSort);
     sortSelect.addEventListener('change', applyFiltersAndSort);
 
 
@@ -293,7 +529,7 @@
 
     function openModal(id) {
       const product = products.find(p => p.id === id);
-      document.getElementById("modalImage").src = product.modal_img;
+      document.getElementById("modalImage").src = product.modalImg;
       document.getElementById("modalName").textContent = product.name;
       document.getElementById("modalPrice").textContent = product.price.toLocaleString() + "đ";
       document.getElementById("modalBrand").textContent = product.brand;
@@ -301,7 +537,7 @@
       document.getElementById("modalDesc").textContent = product.desc;
 
       document.getElementById("btnAddCart").onclick = () => addCart(product.id);
-      document.getElementById("btnBuy").onclick = () => alert("Mua " + product.name);
+      document.getElementById("btnBuy").onclick = () => buyNow(product.id);
 
       document.getElementById("productModal").style.display = "flex";
     }
@@ -309,13 +545,13 @@
 
     function addCart(id) {
       const user = getCurrentUser();
-      if (!user) { alert('Vui lòng đăng nhập để thêm sản phẩm.'); window.location.href = 'login.html'; return; }
+      if (!user) { showToast('Vui lòng đăng nhập để thêm sản phẩm.'); window.location.href = 'login.html'; return; }
       let cart = getCart();
       const product = products.find(p => p.id === id);
       const exist = cart.find(i => i.id === id);
       if (exist) { exist.qty = (exist.qty || 1) + 1; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, img: product.img }); }
       saveCart(cart);
-      alert('Đã thêm ' + product.name + ' vào giỏ hàng!');
+      showToast('Đã thêm ' + product.name + ' vào giỏ hàng!');
       renderCartPopup();
     }
 
@@ -323,15 +559,67 @@
       const product = products.find(p => p.id === id);
       if (!product) return;
       const u = getCurrentUser();
-      if (!u) { alert("Vui lòng đăng nhập để thêm vào giỏ hàng!"); return; }
+      if (!u) { showToast("Vui lòng đăng nhập để thêm vào giỏ hàng!"); return; }
       let cart = JSON.parse(localStorage.getItem(cartKeyForUser(u.username))) || [];
       const exist = cart.find(i => i.id === id);
       if (exist) { exist.qty = (exist.qty || 1) + 1; } else { cart.push({ id: product.id, name: product.name, price: product.price, qty: 1, img: product.img }); }
       saveCart(cart);
-      alert("Đã thêm " + product.name + " vào giỏ hàng!");
+      showToast("Đã thêm " + product.name + " vào giỏ hàng!");
       renderCartPopup();
     }
 
+    function buyNow(id) {
+      const user = getCurrentUser();
+      if (!user) {
+        showToast('Vui lòng đăng nhập để mua sản phẩm.');
+        return;
+      }
+
+      let cart = getCart();
+      const product = products.find(p => p.id === id);
+
+      if (!product) {
+        showToast('Sản phẩm không tồn tại.');
+        return;
+      }
+
+      // Nếu sản phẩm chưa có trong giỏ thì thêm vào giỏ trước
+      let exist = cart.find(i => i.id === id);
+      if (!exist) {
+        exist = { id: product.id, name: product.name, price: product.price, qty: 1, img: product.img };
+        cart.push(exist);
+        saveCart(cart);
+      }
+
+      // Gọi checkout để render popup
+      checkout();
+
+      // Sau khi render xong thì chỉnh lại checkbox
+      document.querySelectorAll('.checkout-item-check').forEach(chk => {
+        if (chk.dataset.id === String(id)) {
+          chk.checked = true;   // chỉ tick sản phẩm vừa mua
+        } else {
+          chk.checked = false;  // các sản phẩm khác bỏ tick
+        }
+      });
+
+      // Tính lại tổng
+      updateCheckoutTotal();
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.innerText = msg;
+
+      container.appendChild(toast);
+
+      // Xoá sau 3s
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
     function renderCartPopup() {
       const cart = getCart();
       const list = document.getElementById('cartItems');
@@ -360,6 +648,7 @@
           Thanh toán
         </button>
       </div>`;
+      document.body.classList.add("noscroll"); // ❌ tắt scroll
     }
 
     // Hashtable chứa mã giảm giá và % giảm
@@ -379,10 +668,10 @@
 
       if (promoCodes.hasOwnProperty(inputCode)) {
         currentDiscountPercent = promoCodes[inputCode];
-        alert(`Áp dụng mã ${inputCode}: giảm ${currentDiscountPercent}%`);
+        showToast(`Áp dụng mã ${inputCode}: giảm ${currentDiscountPercent}%`);
       } else {
         currentDiscountPercent = 0;
-        alert("Mã giảm giá không hợp lệ");
+        showToast("Mã giảm giá không hợp lệ");
       }
 
       updateCheckoutTotal();
@@ -447,10 +736,10 @@
 
       // Hiển thị chi tiết
       document.getElementById('checkoutTotal_discount').innerHTML = `
-    <div>Tổng ban đầu: ${total.toLocaleString()}đ</div>
-    ${discountAmount > 0 ? `<div>Giảm ${currentDiscountPercent}%: -${discountAmount.toLocaleString()}đ</div>` : ''}
-    <div><b>Tổng thanh toán: ${finalTotal.toLocaleString()}đ</b></div>
-  `;
+      <div>Tổng ban đầu: ${total.toLocaleString()}đ</div>
+      ${discountAmount > 0 ? `<div>Giảm ${currentDiscountPercent}%: -${discountAmount.toLocaleString()}đ</div>` : ''}
+      <div><b>Tổng thanh toán: ${finalTotal.toLocaleString()}đ</b></div>
+      `;
 
       // Áp dụng % giảm giá nếu có
       if (currentDiscountPercent > 0) {
@@ -474,7 +763,7 @@
       const paymentMethod = document.getElementById('paymentMethod').value;
 
       if (!name || !phone || !address || !paymentMethod) {
-        alert('Vui lòng điền đầy đủ thông tin và chọn phương thức thanh toán!');
+        showToast('Vui lòng điền đầy đủ thông tin và chọn phương thức thanh toán!');
         return;
       }
 
@@ -496,7 +785,7 @@
           document.getElementById("qrPopup").style.display = "none";
         };
         closeCheckoutPopup();
-        alert("Vui lòng quét mã QR để thanh toán. Sau khi quét, nhấn 'Xác nhận đã thanh toán' để hoàn tất.");
+        showToast("Vui lòng quét mã QR để thanh toán. Sau khi quét, nhấn 'Xác nhận đã thanh toán' để hoàn tất.");
         return; // Dừng ở đây, chờ user xác nhận
       }
 
@@ -506,21 +795,64 @@
 
     // Hàm xử lý khi thanh toán thành công
     function finishPayment(name, phone, address, promoCode, paymentMethod) {
-      alert(
-        `Thanh toán thành công!\n` +
-        `Tên: ${name}\n` +
-        `SĐT: ${phone}\n` +
-        `Địa chỉ: ${address}\n` +
-        `Mã giảm giá: ${promoCode}\n` +
-        `Phương thức: ${paymentMethod}`
-      );
-      
-      closeCheckoutPopup();
-      localStorage.removeItem(cartKeyForUser(getCurrentUser().username));
+      const user = getCurrentUser();
+      const cart = getCart();
+      if (!user || cart.length === 0) return;
+
+      // Lọc các sản phẩm được tick khi checkout
+      const checkedIds = Array.from(document.querySelectorAll('.checkout-item-check:checked'))
+        .map(chk => parseInt(chk.dataset.id));
+      const items = cart.filter(it => checkedIds.includes(it.id));
+
+      // Tính tổng
+      let total = items.reduce((sum, it) => sum + it.price * (it.qty || 1), 0);
+      let discount = currentDiscountPercent > 0 ? total * currentDiscountPercent / 100 : 0;
+      let finalTotal = total - discount;
+
+      // Tạo đơn hàng
+      const order = {
+        id: Date.now(),
+        customer: { name, phone, address, username: user.username },
+        items: items.map(it => ({
+          productId: it.id,
+          name: it.name,
+          price: it.price,
+          qty: it.qty || 1,
+          img: it.img
+        })),
+        total: finalTotal,
+        discount,
+        promoCode,
+        paymentMethod,
+        date: new Date().toISOString()
+      };
+
+      // Lưu vào localStorage
+      let orders = getOrders();
+      orders.push(order);
+      saveOrders(orders);
+
+      // Dọn giỏ hàng
+      localStorage.removeItem(cartKeyForUser(user.username));
       updateCartCount();
       renderCartPopup();
+      closeCheckoutPopup();
+
+      showToast(
+        `Thanh toán thành công!\n` +
+        `Mã đơn: ${order.id}\n` +
+        `Tổng: ${finalTotal.toLocaleString()}đ`
+      );
     }
 
+    // LƯU ORDER
+    function getOrders() {
+      return JSON.parse(localStorage.getItem("orders")) || [];
+    }
+
+    function saveOrders(orders) {
+      localStorage.setItem("orders", JSON.stringify(orders));
+    }
 
     function removeFromCart(index) { let cart = getCart(); if (index < 0 || index >= cart.length) return; cart.splice(index, 1); saveCart(cart); renderCartPopup(); }
     function clearCart() { const cur = getCurrentUser(); if (!cur) return; localStorage.removeItem(cartKeyForUser(cur.username)); renderCartPopup(); updateCartCount(); }
@@ -536,6 +868,7 @@
       document.getElementById('popupAvatar').src = user.avatar || 'public/assets/default_avatar.jpg';
       document.getElementById('popupName').textContent = user.displayName || user.name || '';
       document.getElementById('popupEmail').textContent = user.username || user.email || '';
+      document.getElementById('popupRole').textContent = "ROLE: " + (user.role || 'Người dùng');
       document.getElementById('userPopup').style.display = 'block';
     }
     document.getElementById('closePopup').addEventListener('click', () => document.getElementById('userPopup').style.display = 'none');
@@ -547,7 +880,7 @@
       reader.onload = function (e) {
         const newAvatar = e.target.result;
         let cur = getCurrentUser();
-        if (!cur) return alert('Bạn cần đăng nhập để đổi avatar');
+        if (!cur) return showToast('Bạn cần đăng nhập để đổi avatar');
         cur.avatar = newAvatar;
         setCurrentUser(cur);
         // update users list
@@ -609,10 +942,89 @@
       }
     }
 
+    //Phần dành cho admin
 
+    //check role
+    document.addEventListener("DOMContentLoaded", () => {
+      const user = getCurrentUser();
+      const adminNode = document.getElementById("admin-nodes");
+      if (user && user.role === "admin") {
+        adminNode.style.display = "flex";
+      }
+    });
+
+
+
+    const fabMain = document.getElementById("adminNode");
+    const fabImage = document.getElementById("fabImage");
+    const fabProduct = document.getElementById("fabProduct");
+    const fabRevenue = document.getElementById("fabRevenue");
+
+    let isFabOpen = false;
+
+    fabMain.addEventListener("click", () => {
+      isFabOpen = !isFabOpen;
+      if (isFabOpen) {
+        fabImage.classList.add("show");
+        fabImage.style.bottom = "90px";
+
+        fabProduct.classList.add("show");
+        fabProduct.style.bottom = "150px";
+
+        fabRevenue.classList.add("show");
+        fabRevenue.style.bottom = "210px";
+      } else {
+        [fabImage, fabProduct, fabRevenue].forEach(node => {
+          node.classList.remove("show");
+          node.style.bottom = "20px";
+        });
+      }
+    });
+
+    // ====== Action của các node con ======
+    function openPopup(id) {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.style.display = "flex";
+        setTimeout(() => {
+          popup.classList.add("show");
+        }, 10);
+      } else {
+        console.error("Không tìm thấy popup với id:", id);
+      }
+    }
+    function closePopup(id) {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.classList.remove("show");
+        setTimeout(() => {
+          popup.style.display = "none";
+        }, 300);
+      }
+    }
+    fabImage.addEventListener("click", () => {
+      document.body.style.backgroundImage = "url('https://picsum.photos/1200/800')";
+      document.body.style.backgroundSize = "cover";
+      showToast("Đã thay đổi hình nền!");
+    });
+
+    fabProduct.addEventListener("click", () => {
+      openPopup("adminProductPopup");
+      renderAdminProductList();
+    });
+
+    fabRevenue.addEventListener("click", () => {
+      showToast("Tính năng quản lý doanh thu đang được phát triển...");
+    });
+    //Bánh răng xoay
+    const fab = document.querySelector(".fab");
+    fab.addEventListener("click", () => {
+      fab.classList.toggle("active");
+    });
 
     // init
     populateBrandFilter();
+    populateColorFilter();
     renderProducts();
     updateNavbar();
     updateCartCount();

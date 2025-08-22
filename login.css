@@ -29,10 +29,12 @@ main.auth-main {
     align-items: center;
     justify-content: center;
 }
-.auth-container{
+
+.auth-container {
     height: 100vh;
     position: relative;
 }
+
 .auth-card {
     position: absolute;
     right: 80px;
@@ -44,7 +46,7 @@ main.auth-main {
     display: flex;
     align-items: center;
     flex-direction: column;
-    justify-content:space-between;
+    justify-content: space-between;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
     border-radius: 0px 0px 20px 20px;
 }
@@ -77,10 +79,12 @@ button {
     color: #9ca3af;
     text-decoration: none;
 }
+
 .links a:hover {
     color: #fff;
     text-decoration: underline;
 }
+
 .popup {
     display: none;
     position: fixed;
@@ -106,6 +110,7 @@ button {
     color: #fff;
     text-align: center;
 }
+
 .popup-inner p {
     color: #fff;
     text-align: center;
@@ -135,4 +140,43 @@ button {
     background: transparent;
     font-size: 20px;
     cursor: pointer;
+}
+
+/* Popup thông báo thêm giỏ hàng */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    /* dưới nav, tuỳ nav cao bao nhiêu thì chỉnh */
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    background: #ffffff;
+    color: rgb(0, 0, 0);
+    padding: 12px 18px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 }

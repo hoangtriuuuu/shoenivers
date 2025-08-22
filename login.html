@@ -13,7 +13,7 @@
     <video src="public/assets/8519683-uhd_4096_1680_25fps.mp4" autoplay muted loop></video>
     <div class="auth-container">
       <section class="auth-card">
-        <a href="index.html"><img src="/WEB/public/assets/logo/favicon_io (1)/apple-touch-icon.png" alt=""></a>
+        <a href="index.html"><img src="public/assets/logo/favicon_io (1)/apple-touch-icon.png" alt="Về trang chủ"></a>
         <h2>Đăng nhập</h2>
         <form id="loginForm">
           <input id="loginEmail" type="email" placeholder="Email" required />
@@ -46,11 +46,26 @@
       </div>
     </div>
   </main>
+  <div id="toast-container"></div>
 
   <script>
     // keys
     const USERS_KEY = 'users_list';
     const CURRENT_KEY = 'current_user';
+    // Admin cứng
+    (function ensureAdmin() {
+      let users = getUsers();
+      if (!users.some(u => u.username === 'admin@shop.com')) {
+        users.push({
+          displayName: 'Administrator',
+          username: 'admin@shop.com',
+          password: '123456@',
+          avatar: 'public/assets/admin.png',
+          role: 'admin'
+        });
+        saveUsers(users);
+      }
+    })();
 
     function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
     function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
@@ -81,16 +96,16 @@
       const username = document.getElementById('registerUsername').value.trim();
       const password = document.getElementById('registerPassword').value;
 
-      if (!displayName || !username || !password) { alert('Vui lòng nhập đầy đủ'); return; }
-      if (!isEmail(username)) { alert('Email không hợp lệ'); return; }
-      if (!validPassword(password)) { alert('Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt'); return; }
+      if (!displayName || !username || !password) { showToast('Vui lòng nhập đầy đủ'); return; }
+      if (!isEmail(username)) { showToast('Email không hợp lệ'); return; }
+      if (!validPassword(password)) { showToast('Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt'); return; }
 
       const users = getUsers();
-      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) { alert('Email đã tồn tại'); return; }
+      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) { showToast('Email đã tồn tại'); return; }
 
-      users.push({ displayName, username, password, avatar: 'public/assets/default_avatar.jpg' });
+      users.push({ displayName, username, password, avatar: 'public/assets/default_avatar.jpg', role: 'user' });
       saveUsers(users);
-      alert('Đăng ký thành công! Vui lòng đăng nhập.');
+      showToast('Đăng ký thành công! Vui lòng đăng nhập.');
       registerForm.reset();
       registerPopup.style.display = 'none';
     });
@@ -102,10 +117,10 @@
       const password = document.getElementById('loginPassword').value;
       const users = getUsers();
       const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-      if (!user) { alert('Không tìm thấy tài khoản'); return; }
-      if (user.password !== password) { alert('Sai mật khẩu'); return; }
+      if (!user) { showToast('Không tìm thấy tài khoản'); return; }
+      if (user.password !== password) { showToast('Sai mật khẩu'); return; }
       setCurrent(user);
-      alert('Đăng nhập thành công!');
+      showToast('Đăng nhập thành công!');
       window.location.href = 'index.html';
     });
 
@@ -114,6 +129,20 @@
       if (e.target === registerPopup) registerPopup.style.display = 'none';
       if (e.target === forgotPopup) forgotPopup.style.display = 'none';
     });
+
+    function showToast(msg) {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.innerText = msg;
+
+      container.appendChild(toast);
+
+      // Xoá sau 3s
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
   </script>
 </body>
 
