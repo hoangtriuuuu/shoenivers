@@ -184,7 +184,7 @@
             <hr>
             <br>
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15677.589219381243!2d106.67381708027229!3d10.780851659777149!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f2e5b762743%3A0x850ae19dfaab22dd!2sNeverStopShop%20-%20Chuy%C3%AAn%20gi%C3%A0y%20Sneakers%20Replica%201%3A1%20Best%20Quality%20HCM!5e0!3m2!1svi!2sus!4v1755756925895!5m2!1svi!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.3876847850834!2d106.67182831062068!3d10.781590189323186!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f002c2ba091%3A0xe78ce642de807847!2sSHOENIVERS!5e0!3m2!1svi!2sus!4v1755885446592!5m2!1svi!2sus"
               width="100%" height="200" style="border:0;" allowfullscreen="" loading="lazy">
             </iframe>
           </div>
@@ -357,6 +357,7 @@
   <!-- Popup doanh thu -->
   <div id="revenueModal" class="modal">
     <div class="modal-content">
+      <span class="close">&times;</span>
       <div class="revenue-left">
         <h2>Thống kê doanh thu</h2>
         <canvas id="revenueChart"></canvas>
@@ -736,7 +737,7 @@
 
     function addCart(id) {
       const user = getCurrentUser();
-      if (!user) { showToast('Vui lòng đăng nhập để thêm sản phẩm.'); window.location.href = 'login.html'; return; }
+      if (!user) { showToast('Vui lòng đăng nhập để thêm sản phẩm.'); return; }
       let cart = getCart();
       const product = products.find(p => p.id === id);
       // increase qty if exists
@@ -1182,29 +1183,6 @@
     });
 
     // ====== Action của các node con ======
-    function openPopup(id) {
-      const popup = document.getElementById(id);
-      if (popup) {
-        popup.style.display = "flex";
-        setTimeout(() => {
-          popup.classList.add("show");
-        }, 10);
-        window.removeEventListener("wheel", snapHandler);
-      } else {
-        console.error("Không tìm thấy popup với id:", id);
-      }
-    }
-
-    function closePopup(id) {
-      const popup = document.getElementById(id);
-      if (popup) {
-        popup.classList.remove("show");
-        setTimeout(() => {
-          popup.style.display = "none";
-        }, 300);
-        window.addEventListener("wheel", snapHandler);
-      }
-    }
     fabImage.addEventListener("click", () => {
       document.body.style.backgroundImage = "url('https://picsum.photos/1200/800')";
       document.body.style.backgroundSize = "cover";
@@ -1225,7 +1203,17 @@
 
 
     fabRevenue.addEventListener("click", () => {
-      openRevenuePopup();
+      if (document.getElementById("revenueModal").style.display === "flex") {
+        closePopup("revenueModal");
+      } else {
+        // Nút close trong Revenue Popup
+        document.querySelector("#revenueModal .close").addEventListener("click", () => {
+          closePopup("revenueModal");
+        });
+        openPopup("revenueModal");
+        renderRevenueChart();
+        renderOrderTable();
+      }
     });
 
     //--THỐNG KÊ--
@@ -1247,15 +1235,7 @@
 
       return revenueMap;
     }
-    function openRevenuePopup() {
-      document.getElementById("revenueModal").style.display = "block";
-      renderRevenueChart();
-      renderOrderTable();
-    }
 
-    function closeRevenuePopup() {
-      document.getElementById("revenueModal").style.display = "none";
-    }
     //render ra chart
     function renderRevenueChart() {
       const orders = JSON.parse(localStorage.getItem("orders")) || [];
@@ -1337,6 +1317,57 @@
     const fab = document.querySelector(".fab");
     fab.addEventListener("click", () => {
       fab.classList.toggle("active");
+    });
+
+
+
+    // ====== POPUP MANAGER ======
+    const popupIds = ["adminProductPopup", "revenueModal", "productModal", "cartPopup", "checkoutPopup", "userPopup", "qrPopup"];
+
+    function closeAllPopups() {
+      popupIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+      });
+      window.addEventListener("wheel", snapHandler);
+    }
+
+    function openPopup(id) {
+      closeAllPopups();
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.style.display = "flex";
+        popup.classList.add("show");
+        window.removeEventListener("wheel", snapHandler);
+      }
+    }
+
+    function closePopup(id) {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.classList.remove("show");
+        setTimeout(() => {
+          popup.style.display = "none";
+          window.addEventListener("wheel", snapHandler);
+        }, 200);
+      }
+    }
+
+    // ESC để đóng popup
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAllPopups();
+      }
+    });
+
+    // Click ra ngoài để đóng popup
+    popupIds.forEach(id => {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.addEventListener("click", (e) => {
+          if (e.target === popup) closePopup(id);
+        });
+      }
     });
 
 

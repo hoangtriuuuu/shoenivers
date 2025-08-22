@@ -123,7 +123,7 @@ body.noscroll{
 }
 
 .view-btn {
-    background: #007bff;
+    background: #000000;
     color: #fff
 }
 
@@ -491,4 +491,107 @@ body.noscroll{
 
 #btnCancelProduct:hover {
     background: #ffffff;
+}
+
+/* ADMIN THỐNG KÊ */
+#revenueModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Nội dung modal full màn */
+#revenueModal .modal-content {
+    background: #fff;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 95%;
+    height: 90%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    position: relative;
+    /* để close bám theo */
+    animation: fadeIn 0.3s ease;
+}
+
+/* Chart bên trái */
+.revenue-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.revenue-left canvas {
+    width: 100% !important;
+    height: auto !important;
+    /* giữ tỉ lệ chart */
+    max-height: 500px;
+}
+
+/* Bảng bên phải */
+.revenue-right {
+    flex: 2;
+    overflow-y: auto;
+}
+
+#revenueModal .modal-content h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+/* Nút đóng */
+#revenueModal .close {
+    color: #aaa;
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#revenueModal .close:hover {
+    color: #333;
+}
+
+/* Fix bảng */
+#orderTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+#orderTable th,
+#orderTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+#orderTable th {
+    background: #f4f4f4;
+}
+
+/* Hiệu ứng mở modal */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

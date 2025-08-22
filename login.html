@@ -13,7 +13,7 @@
     <video src="public/assets/8519683-uhd_4096_1680_25fps.mp4" autoplay muted loop></video>
     <div class="auth-container">
       <section class="auth-card">
-        <a href="index.html"><img src="public/assets/logo/favicon_io (1)/apple-touch-icon.png" alt="Về trang chủ"></a>
+        <a href="index.html"><img src="public\assets\logo\apple-touch-icon.png" alt="Về trang chủ"></a>
         <h2>Đăng nhập</h2>
         <form id="loginForm">
           <input id="loginEmail" type="email" placeholder="Email" required />
@@ -42,108 +42,170 @@
       <div class="popup-inner">
         <button class="close-popup" id="closeForgot">&times;</button>
         <h3>Quên mật khẩu</h3>
-        <p>Liên hệ admin để lấy lại tài khoản 😅</p>
+        <form id="forgotForm">
+          <input id="forgotEmail" type="email" placeholder="Nhập email đã đăng ký" required />
+          <button type="submit">Xác nhận</button>
+        </form>
       </div>
     </div>
-  </main>
-  <div id="toast-container"></div>
 
-  <script>
-    // keys
-    const USERS_KEY = 'users_list';
-    const CURRENT_KEY = 'current_user';
-    // Admin cứng
-    (function ensureAdmin() {
-      let users = getUsers();
-      if (!users.some(u => u.username === 'admin@shop.com')) {
-        users.push({
-          displayName: 'Administrator',
-          username: 'admin@shop.com',
-          password: '123456@',
-          avatar: 'public/assets/admin.png',
-          role: 'admin'
-        });
+    <div id="resetPopup" class="popup" aria-hidden="true">
+      <div class="popup-inner">
+        <button class="close-popup" id="closeReset">&times;</button>
+        <h3>Đổi mật khẩu</h3>
+        <form id="resetForm">
+          <input id="resetNewPw" type="password" placeholder="Mật khẩu mới" required />
+          <input id="resetConfirmPw" type="password" placeholder="Xác nhận mật khẩu" required />
+          <button type="submit">Đổi mật khẩu</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script>
+      // keys
+      const USERS_KEY = 'users_list';
+      const CURRENT_KEY = 'current_user';
+      // Admin cứng
+      (function ensureAdmin() {
+        let users = getUsers();
+        if (!users.some(u => u.username === 'admin@shop.com')) {
+          users.push({
+            displayName: 'Administrator',
+            username: 'admin@shop.com',
+            password: '123456@',
+            avatar: 'public/assets/admin.png',
+            role: 'admin'
+          });
+          saveUsers(users);
+        }
+      })();
+
+      function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
+      function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+      function setCurrent(u) { localStorage.setItem(CURRENT_KEY, JSON.stringify(u)); }
+
+      // validation
+      const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+      const validPassword = pw =>
+        pw.length >= 8 &&
+        /[A-Za-z]/.test(pw) &&   // Có ít nhất 1 chữ
+        /\d/.test(pw) &&         // Có ít nhất 1 số
+        /[!@#$%^&*(),.?":{}|<>]/.test(pw); // Có ít nhất 1 ký tự đặc biệt
+
+      // elements
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      const registerPopup = document.getElementById('registerPopup');
+      const forgotPopup = document.getElementById('forgotPopup');
+      const forgotForm = document.getElementById("forgotForm");
+      const resetPopup = document.getElementById("resetPopup");
+      const resetForm = document.getElementById("resetForm");
+      document.getElementById('openRegister').addEventListener('click', e => { e.preventDefault(); registerPopup.style.display = 'flex'; });
+      document.getElementById('openForgot').addEventListener('click', e => { e.preventDefault(); forgotPopup.style.display = 'flex'; });
+      document.getElementById('closeRegister').addEventListener('click', () => registerPopup.style.display = 'none');
+      document.getElementById('closeForgot').addEventListener('click', () => forgotPopup.style.display = 'none');
+      document.getElementById('closeReset').addEventListener('click', () => resetPopup.style.display = 'none');
+      let resetUserEmail = null;
+
+      // Register
+      registerForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const displayName = document.getElementById('registerName').value.trim();
+        const username = document.getElementById('registerUsername').value.trim();
+        const password = document.getElementById('registerPassword').value;
+
+        if (!displayName || !username || !password) { showToast('Vui lòng nhập đầy đủ'); return; }
+        if (!isEmail(username)) { showToast('Email không hợp lệ'); return; }
+        if (!validPassword(password)) { showToast('Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt'); return; }
+
+        const users = getUsers();
+        if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) { showToast('Email đã tồn tại'); return; }
+
+        users.push({ displayName, username, password, avatar: 'public/assets/default_avatar.jpg', role: 'user' });
         saveUsers(users);
+        showToast('Đăng ký thành công! Vui lòng đăng nhập.');
+        registerForm.reset();
+        registerPopup.style.display = 'none';
+      });
+
+      // Login
+      loginForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const username = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const users = getUsers();
+        const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+        if (!user) { showToast('Không tìm thấy tài khoản'); return; }
+        if (user.password !== password) { showToast('Sai mật khẩu'); return; }
+        setCurrent(user);
+        showToast('Đăng nhập thành công!');
+        window.location.href = 'index.html';
+      });
+
+      // Forgot Password
+      forgotForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const email = document.getElementById("forgotEmail").value.trim();
+        const users = getUsers();
+        const user = users.find(u => u.username.toLowerCase() === email.toLowerCase());
+        if (!user) {
+          showToast("Email không tồn tại");
+          return;
+        }
+        resetUserEmail = user.username;
+        forgotPopup.style.display = "none";
+        resetPopup.style.display = "flex";
+      });
+
+      // Change Password
+      resetForm.addEventListener("submit", e => {
+        e.preventDefault();
+        const newPw = document.getElementById("resetNewPw").value;
+        const confirmPw = document.getElementById("resetConfirmPw").value;
+
+        if (newPw !== confirmPw) {
+          showToast("Mật khẩu xác nhận không khớp");
+          return;
+        }
+        if (!validPassword(newPw)) {
+          showToast("Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt");
+          return;
+        }
+
+        let users = getUsers();
+        const idx = users.findIndex(u => u.username.toLowerCase() === resetUserEmail.toLowerCase());
+        if (idx === -1) { showToast("Không tìm thấy tài khoản"); return; }
+
+        users[idx].password = newPw;
+        saveUsers(users);
+        showToast("Đổi mật khẩu thành công, vui lòng đăng nhập lại");
+        resetForm.reset();
+        resetPopup.style.display = "none";
+      });
+
+      // click outside to close popup
+      window.addEventListener('click', e => {
+        if (e.target === registerPopup) registerPopup.style.display = 'none';
+        if (e.target === forgotPopup) forgotPopup.style.display = 'none';
+        if (e.target === resetPopup) resetPopup.style.display = 'none';
+      });
+
+      function showToast(msg) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.innerText = msg;
+
+        container.appendChild(toast);
+
+        // Xoá sau 3s
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
       }
-    })();
-
-    function getUsers() { return JSON.parse(localStorage.getItem(USERS_KEY) || '[]'); }
-    function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
-    function setCurrent(u) { localStorage.setItem(CURRENT_KEY, JSON.stringify(u)); }
-
-    // validation
-    const isEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
-    const validPassword = pw =>
-      pw.length >= 8 &&
-      /[A-Za-z]/.test(pw) &&   // Có ít nhất 1 chữ
-      /\d/.test(pw) &&         // Có ít nhất 1 số
-      /[!@#$%^&*(),.?":{}|<>]/.test(pw); // Có ít nhất 1 ký tự đặc biệt
-
-    // elements
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const registerPopup = document.getElementById('registerPopup');
-    const forgotPopup = document.getElementById('forgotPopup');
-    document.getElementById('openRegister').addEventListener('click', e => { e.preventDefault(); registerPopup.style.display = 'flex'; });
-    document.getElementById('openForgot').addEventListener('click', e => { e.preventDefault(); forgotPopup.style.display = 'flex'; });
-    document.getElementById('closeRegister').addEventListener('click', () => registerPopup.style.display = 'none');
-    document.getElementById('closeForgot').addEventListener('click', () => forgotPopup.style.display = 'none');
-
-    // Register
-    registerForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const displayName = document.getElementById('registerName').value.trim();
-      const username = document.getElementById('registerUsername').value.trim();
-      const password = document.getElementById('registerPassword').value;
-
-      if (!displayName || !username || !password) { showToast('Vui lòng nhập đầy đủ'); return; }
-      if (!isEmail(username)) { showToast('Email không hợp lệ'); return; }
-      if (!validPassword(password)) { showToast('Mật khẩu >=8 ký tự, có chữ, số, ký tự đặc biệt'); return; }
-
-      const users = getUsers();
-      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) { showToast('Email đã tồn tại'); return; }
-
-      users.push({ displayName, username, password, avatar: 'public/assets/default_avatar.jpg', role: 'user' });
-      saveUsers(users);
-      showToast('Đăng ký thành công! Vui lòng đăng nhập.');
-      registerForm.reset();
-      registerPopup.style.display = 'none';
-    });
-
-    // Login
-    loginForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const username = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const users = getUsers();
-      const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
-      if (!user) { showToast('Không tìm thấy tài khoản'); return; }
-      if (user.password !== password) { showToast('Sai mật khẩu'); return; }
-      setCurrent(user);
-      showToast('Đăng nhập thành công!');
-      window.location.href = 'index.html';
-    });
-
-    // click outside to close popup
-    window.addEventListener('click', e => {
-      if (e.target === registerPopup) registerPopup.style.display = 'none';
-      if (e.target === forgotPopup) forgotPopup.style.display = 'none';
-    });
-
-    function showToast(msg) {
-      const container = document.getElementById("toast-container");
-      const toast = document.createElement("div");
-      toast.className = "toast";
-      toast.innerText = msg;
-
-      container.appendChild(toast);
-
-      // Xoá sau 3s
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
-    }
-  </script>
+    </script>
 </body>
 
 </html>

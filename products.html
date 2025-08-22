@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="product.css">
   <link rel="icon" type="image/png" href="public/assets/logo/android-chrome-512x512.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
@@ -239,13 +240,62 @@
       </div>
     </div>
   </div>
-
+  <!-- Popup Thống kê doanh thu -->
+  <!-- Popup doanh thu -->
+  <div id="revenueModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <div class="revenue-left">
+        <h2>Thống kê doanh thu</h2>
+        <canvas id="revenueChart"></canvas>
+      </div>
+      <div class="revenue-right">
+        <h2>Danh sách đơn hàng</h2>
+        <table id="orderTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Tên KH</th>
+              <th>SĐT</th>
+              <th>Địa chỉ</th>
+              <th>Tổng</th>
+              <th>Giảm giá</th>
+              <th>Thanh toán</th>
+              <th>Ngày</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
   <script>
     // NAVBAR SCROLL EFFECT
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       if (window.scrollY > 50) navbar.classList.add('scrolled'); else navbar.classList.remove('scrolled');
     });
+
+    //Snap scroll
+    function snapHandler(e) {
+      if (isScrolling) return;
+      isScrolling = true;
+
+      if (e.deltaY > 0) {
+        currentSection = Math.min(currentSection + 1, sections.length - 1);
+      } else {
+        currentSection = Math.max(currentSection - 1, 0);
+      }
+
+      window.scrollTo({
+        top: sections[currentSection].offsetTop,
+        behavior: "smooth"
+      });
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 300);
+    }
 
     // Render products data
     let products = JSON.parse(localStorage.getItem("products")) || [];
@@ -545,7 +595,7 @@
 
     function addCart(id) {
       const user = getCurrentUser();
-      if (!user) { showToast('Vui lòng đăng nhập để thêm sản phẩm.'); window.location.href = 'login.html'; return; }
+      if (!user) { showToast('Vui lòng đăng nhập để thêm sản phẩm.'); return; }
       let cart = getCart();
       const product = products.find(p => p.id === id);
       const exist = cart.find(i => i.id === id);
@@ -982,26 +1032,6 @@
     });
 
     // ====== Action của các node con ======
-    function openPopup(id) {
-      const popup = document.getElementById(id);
-      if (popup) {
-        popup.style.display = "flex";
-        setTimeout(() => {
-          popup.classList.add("show");
-        }, 10);
-      } else {
-        console.error("Không tìm thấy popup với id:", id);
-      }
-    }
-    function closePopup(id) {
-      const popup = document.getElementById(id);
-      if (popup) {
-        popup.classList.remove("show");
-        setTimeout(() => {
-          popup.style.display = "none";
-        }, 300);
-      }
-    }
     fabImage.addEventListener("click", () => {
       document.body.style.backgroundImage = "url('https://picsum.photos/1200/800')";
       document.body.style.backgroundSize = "cover";
@@ -1009,17 +1039,182 @@
     });
 
     fabProduct.addEventListener("click", () => {
-      openPopup("adminProductPopup");
-      renderAdminProductList();
+      const popupId = "adminProductPopup";
+      const popup = document.getElementById(popupId);
+
+      if (popup.classList.contains("show")) {
+        closePopup(popupId);
+      } else {
+        openPopup(popupId);
+        renderAdminProductList();
+      }
     });
 
+
     fabRevenue.addEventListener("click", () => {
-      showToast("Tính năng quản lý doanh thu đang được phát triển...");
+      if (document.getElementById("revenueModal").style.display === "flex") {
+        closePopup("revenueModal");
+      } else {
+        // Nút close trong Revenue Popup
+        document.querySelector("#revenueModal .close").addEventListener("click", () => {
+          closePopup("revenueModal");
+        });
+        openPopup("revenueModal");
+        renderRevenueChart();
+        renderOrderTable();
+      }
     });
+
+    //--THỐNG KÊ--
+
+    //lấy tổng doanh thu
+    function getTotalRevenue() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      return orders.reduce((sum, o) => sum + o.total, 0);
+    }
+    //Thống kê doanh thu theo ngày
+    function getRevenueByDate() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const revenueMap = {};
+
+      orders.forEach(o => {
+        const date = new Date(o.date).toLocaleDateString("vi-VN");
+        revenueMap[date] = (revenueMap[date] || 0) + o.total;
+      });
+
+      return revenueMap;
+    }
+
+    //render ra chart
+    function renderRevenueChart() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      if (orders.length === 0) {
+        console.log("⚠️ Không có orders => không render chart");
+        document.getElementById("revenueChart").style.display = "none";
+        return;
+      }
+
+      const revenueByDate = {};
+      orders.forEach(o => {
+        const date = new Date(o.date).toLocaleDateString("vi-VN");
+        revenueByDate[date] = (revenueByDate[date] || 0) + o.total;
+      });
+
+      const labels = Object.keys(revenueByDate);
+      const data = Object.values(revenueByDate);
+
+      const ctx = document.getElementById("revenueChart").getContext("2d");
+
+      // ✅ Kiểm tra đúng instance trước khi destroy
+      if (window.revenueChart && typeof window.revenueChart.destroy === "function") {
+        window.revenueChart.destroy();
+      }
+
+      window.revenueChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Doanh thu (VNĐ)",
+            data: data,
+            backgroundColor: "rgba(75,192,192,0.6)",
+            borderColor: "rgba(75,192,192,1)",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => value.toLocaleString("vi-VN") + "đ"
+              }
+            }
+          }
+        }
+      });
+    }
+
+
+    function renderOrderTable() {
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = "";
+
+      orders.forEach(o => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+      <td>${o.id}</td>
+      <td>${o.customer.name}</td>
+      <td>${o.customer.phone}</td>
+      <td>${o.customer.address}</td>
+      <td>${o.total.toLocaleString()}đ</td>
+      <td>${o.discount ? o.discount.toLocaleString() + "đ" : "-"}</td>
+      <td>${o.paymentMethod}</td>
+      <td>${new Date(o.date).toLocaleString("vi-VN")}</td>
+    `;
+        tbody.appendChild(tr);
+      });
+    }
+
     //Bánh răng xoay
     const fab = document.querySelector(".fab");
     fab.addEventListener("click", () => {
       fab.classList.toggle("active");
+    });
+
+
+
+    // ====== POPUP MANAGER ======
+    const popupIds = ["adminProductPopup", "revenueModal", "productModal", "cartPopup", "checkoutPopup", "userPopup", "qrPopup"];
+
+    function closeAllPopups() {
+      popupIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+      });
+      window.addEventListener("wheel", snapHandler);
+    }
+
+    function openPopup(id) {
+      closeAllPopups();
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.style.display = "flex";
+        popup.classList.add("show");
+        window.removeEventListener("wheel", snapHandler);
+      }
+    }
+
+    function closePopup(id) {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.classList.remove("show");
+        setTimeout(() => {
+          popup.style.display = "none";
+          window.addEventListener("wheel", snapHandler);
+        }, 200);
+      }
+    }
+
+    // ESC để đóng popup
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeAllPopups();
+      }
+    });
+
+    // Click ra ngoài để đóng popup
+    popupIds.forEach(id => {
+      const popup = document.getElementById(id);
+      if (popup) {
+        popup.addEventListener("click", (e) => {
+          if (e.target === popup) closePopup(id);
+        });
+      }
     });
 
     // init

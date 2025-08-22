@@ -178,7 +178,9 @@ main .intro .intro-content {
         height: 200px;
     }
 }
-
+.quick-add{
+    background: #ff9800;
+}
 /* ===== PRODUCTS SECTION ===== */
 .products {
     min-height: 100vh;
@@ -485,6 +487,7 @@ main .intro .intro-content {
     background: #111;
     color: #ddd;
     padding: 40px 20px 10px;
+    margin: 50px 0px;
     font-family: Arial, sans-serif;
 }
 
@@ -1011,24 +1014,27 @@ main .intro .intro-content {
     position: fixed;
     z-index: 1000;
     left: 0;
-    top: 60px; 
+    top: 0;
     width: 100%;
-    height: calc(100% - 100px); 
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
 }
 
 /* Nội dung modal full màn */
 #revenueModal .modal-content {
     background: #fff;
-    margin: 0;                 
+    margin: auto;
     padding: 20px;
-    border-radius: 0;           
-    width: 100%;                
-    height: 100%;  
-    animation: fadeIn 0.3s ease;
+    border-radius: 8px;
+    width: 95%;
+    height: 90%;
+    max-width: 1400px;
     display: flex;
     flex-direction: row;
     gap: 20px;
+    position: relative;
+    /* để close bám theo */
+    animation: fadeIn 0.3s ease;
 }
 
 /* Chart bên trái */
@@ -1039,24 +1045,16 @@ main .intro .intro-content {
     align-items: stretch;
 }
 
-/* Bảng bên phải */
-.revenue-right {
-    flex: 1;
-    overflow-x: auto;
-}
-
-/* Canvas chart fix chiều cao */
 .revenue-left canvas {
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
+    /* giữ tỉ lệ chart */
     max-height: 500px;
 }
 
-
-
-/* Bên phải: bảng đơn hàng */
+/* Bảng bên phải */
 .revenue-right {
-    flex: 1;
+    flex: 2;
     overflow-y: auto;
 }
 
@@ -1065,11 +1063,12 @@ main .intro .intro-content {
     text-align: center;
 }
 
+/* Nút đóng */
 #revenueModal .close {
     color: #aaa;
     position: absolute;
     right: 20px;
-    top: 70px; /* ngay dưới nav */
+    top: 15px;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
@@ -1099,8 +1098,7 @@ main .intro .intro-content {
     background: #f4f4f4;
 }
 
-
-
+/* Hiệu ứng mở modal */
 @keyframes fadeIn {
     from {
         opacity: 0;
